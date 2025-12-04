@@ -5,4 +5,5 @@ watchdog
 psutil
 requests
 python-dotenv
+gunicorn==22.0.0
 psycopg2
