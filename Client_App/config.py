@@ -1,46 +1,3 @@
-# # config.py - Configuration Settings
-# import os
-
-# class Config:
-#     SECRET_KEY = os.environ.get('SECRET_KEY') or '110011'
-    
-#     # Dump file locations
-#     DUMP_LOCATIONS = [
-#         r'C:\Windows\Minidump',
-#         os.path.join(os.environ.get('LOCALAPPDATA', ''), 'CrashDumps')
-#     ]
-    
-#     # WinDbg settings
-#     WINDBG_PATH = os.environ.get('WINDBG_PATH') or r'C:\Program Files (x86)\Windows Kits\10\Debuggers\x64\windbg.exe'
-    
-#     # Knowledge base settings
-#     KNOWLEDGE_BASE_PATH = 'knowledge_base/errors.json'
-    
-#     # Email settings for support
-#     SMTP_SERVER = 'smtp.gmail.com'
-#     SMTP_PORT = 587
-#     EMAIL_USERNAME = os.environ.get('EMAIL_USERNAME')
-#     EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-    
-#     # Gemini AI settings
-#     GEMINI_API_KEY = "AIzaSyALQl3IlQPXT_dD8k5kvBA9j3aXenmfDAg"
-#     GEMINI_MODEL = 'gemini-2.0-flash'
-#     GEMINI_TEMPERATURE = 0.7
-#     GEMINI_MAX_TOKENS = 1024
-    
-#     # Chatbot settings
-#     CONVERSATION_TIMEOUT = 3600  # 1 hour
-#     MAX_MESSAGE_HISTORY = 50
-    
-#     # Performance settings
-#     MAX_DUMP_SIZE = 100 * 1024 * 1024  # 100MB
-#     SCAN_TIMEOUT = 30  # seconds
-    
-#     # Logging
-#     LOG_LEVEL = 'INFO'
-#     LOG_FILE = 'logs/app.log'
-
-
 # config.py - Enhanced Configuration Settings with Database Support
 import os
 from datetime import timedelta
@@ -52,7 +9,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
     # Database Settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///dump_analyzer.db'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -216,4 +173,5 @@ config = {
 
 def get_config():
     """Get configuration based on environment"""
+
     return config[os.getenv('FLASK_CONFIG', 'default')]
