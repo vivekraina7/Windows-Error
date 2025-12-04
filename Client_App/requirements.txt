@@ -6,3 +6,4 @@ psutil
 requests
 python-dotenv
 psycopg2
+gunicorn==22.0.0
