@@ -120,10 +120,9 @@ class TestingConfig(Config):
     MAIL_SUPPRESS_SEND = True
 
 class ProductionConfig(Config):
-     """Production configuration"""
+    """Production configuration"""
     DEBUG = False
     
-    # Use PostgreSQL in production
     @property
     def SQLALCHEMY_DATABASE_URI(self):
         uri = os.environ.get('DATABASE_URL') or \
@@ -181,4 +180,5 @@ def get_config():
     """Get configuration based on environment"""
 
     return config[os.getenv('FLASK_CONFIG', 'default')]
+
 
