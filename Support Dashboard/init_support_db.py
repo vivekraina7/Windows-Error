@@ -1,73 +1,68 @@
-#!/usr/bin/env python3
+# init_support_db.py - Updated for Postgres + SQLite support
 """
-Initialize Support Dashboard Database
-Creates support_staff table in the shared database
+Database initialization script for Support Dashboard
+Supports both local SQLite and Render Postgres
 """
 
 import os
 import sys
-import sqlite3
-import hashlib
-from datetime import datetime
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
 
-def simple_hash(password):
-    """Simple password hashing for initialization"""
-    return hashlib.sha256(password.encode()).hexdigest()
+load_dotenv()
 
-# Get the absolute path to the shared database
-shared_db_path = os.path.join(os.path.dirname(__file__), '..', 'Client_App', 'instance', 'dump_analyzer.db')
-shared_db_path = os.path.abspath(shared_db_path)
+# Import your support models (same as support_app.py)
+from support_app import db, SupportStaff  # Adjust import path as needed
 
-def create_support_tables():
-    """Create support tables if they don't exist"""
+def create_app():
+    """Create Flask app for support database initialization"""
+    app = Flask(__name__)
     
-    print(f"Connecting to database: {shared_db_path}")
+    # Use same config as support_app.py
+    app.config['SECRET_KEY'] = os.getenv('SUPPORT_SECRET_KEY', 'support-secret-key')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SUPPORT_DATABASE_URL', 
+        'sqlite:///' + os.path.join(os.path.dirname(__file__), '..', 'Client_App', 'instance', 'dump_analyzer.db'))
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    if not os.path.exists(shared_db_path):
-        print("ERROR: Client app database not found. Please run the client app first.")
-        return False
+    db.init_app(app)
+    return app
+
+def init_support_database():
+    """Initialize support tables and sample data"""
+    app = create_app()
     
-    try:
-        conn = sqlite3.connect(shared_db_path)
-        cursor = conn.cursor()
+    with app.app_context():
+        print(f"Using database: {app.config['SQLALCHEMY_DATABASE_URI']}")
+        print("Creating support tables...")
         
-        # Create support_staff table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS support_staff (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username VARCHAR(80) UNIQUE NOT NULL,
-                email VARCHAR(120) UNIQUE NOT NULL,
-                password_hash VARCHAR(255) NOT NULL,
-                role VARCHAR(20) DEFAULT 'agent',
-                is_available BOOLEAN DEFAULT 1,
-                last_assigned DATETIME,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
+        # Drop and recreate support_staff table (clean setup)
+        if hasattr(db, 'drop_all'):
+            db.drop_all()
+            print("Dropped existing tables")
+        
+        db.create_all()
+        print("Created support tables")
         
         # Check if default users exist
-        cursor.execute("SELECT COUNT(*) FROM support_staff")
-        count = cursor.fetchone()[0]
+        count = SupportStaff.query.count()
         
         if count == 0:
             print("Creating default support staff...")
             
-            # Create default support staff
-            admin_hash = simple_hash('admin123')
-            agent1_hash = simple_hash('agent123')
-            agent2_hash = simple_hash('agent123')
-            
+            # Create default staff (same credentials as before)
             staff_data = [
-                ('admin', 'admin@support.com', admin_hash, 'manager'),
-                ('agent1', 'agent1@support.com', agent1_hash, 'agent'),
-                ('agent2', 'agent2@support.com', agent2_hash, 'agent')
+                ('admin', 'admin@support.com', 'admin123', 'manager'),
+                ('agent1', 'agent1@support.com', 'agent123', 'agent'),
+                ('agent2', 'agent2@support.com', 'agent123', 'agent')
             ]
             
-            cursor.executemany(
-                "INSERT INTO support_staff (username, email, password_hash, role) VALUES (?, ?, ?, ?)",
-                staff_data
-            )
+            for username, email, password, role in staff_data:
+                staff = SupportStaff(username=username, email=email, role=role)
+                staff.set_password(password)  # Uses werkzeug hash like support_app.py
+                db.session.add(staff)
             
+            db.session.commit()
             print("Default support staff created:")
             print("  Manager: admin / admin123")
             print("  Agent: agent1 / agent123")
@@ -75,20 +70,8 @@ def create_support_tables():
         else:
             print(f"Support staff table already has {count} users")
         
-        conn.commit()
-        conn.close()
-        
-        print("Support database initialization completed successfully!")
-        return True
-        
-    except Exception as e:
-        print(f"Error initializing support database: {str(e)}")
-        return False
+        print("Support database initialization completed!")
 
 if __name__ == '__main__':
-    success = create_support_tables()
-    if success:
-        print("\nYou can now start the support dashboard!")
-    else:
-        print("\nFailed to initialize support database.")
-        sys.exit(1)
+    init_support_database()
+    print("\nYou can now start the support dashboard!")
