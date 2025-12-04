@@ -1,0 +1,256 @@
+/* static/css/style.css - Custom Styles */
+
+/* General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+}
+
+/* Dashboard Styles */
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+/* Chat Interface Styles */
+.chat-messages {
+    background-color: #f8f9fa;
+    border-radius: 0;
+}
+
+.message-bubble {
+    max-width: 100%;
+}
+
+.ai-message .message-content {
+    flex: 1;
+}
+
+.user-message {
+    justify-content: flex-end;
+    text-align: right;
+}
+
+.user-message .message-content {
+    flex: 1;
+    max-width: 70%;
+}
+
+.user-message .bg-primary {
+    background-color: #0d6efd !important;
+    color: white;
+}
+
+.ai-message .bg-light {
+    background-color: #e9ecef !important;
+}
+
+.avatar {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.chat-input {
+    background-color: white;
+}
+
+.message-content {
+    word-wrap: break-word;
+}
+
+/* Progress Bar Animation */
+.progress-bar {
+    transition: width 0.6s ease;
+}
+
+/* Alert Animations */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Loading States */
+.spinner-border {
+    animation-duration: 0.75s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .btn-group .btn {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+    }
+    
+    .chat-messages {
+        height: 300px !important;
+    }
+    
+    .user-message .message-content {
+        max-width: 85%;
+    }
+    
+    .card-header h5 {
+        font-size: 1rem;
+    }
+}
+
+/* Code and Error Styling */
+code {
+    background-color: #f1f3f4;
+    color: #d63384;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.table code {
+    background-color: #f8f9fa;
+    color: #e83e8c;
+}
+
+/* Button Hover Effects */
+.btn:hover {
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+    border-color: #d39e00;
+}
+
+/* Custom Scrollbar for Chat */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Animation Classes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+/* Status Indicators */
+.status-ready {
+    color: #198754;
+}
+
+.status-scanning {
+    color: #fd7e14;
+}
+
+.status-error {
+    color: #dc3545;
+}
+
+/* File Icons */
+.file-icon {
+    color: #6c757d;
+    margin-right: 8px;
+}
+
+/* Support Card Styling */
+.support-contact-card {
+    transition: transform 0.2s ease;
+}
+
+.support-contact-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Error Category Badges */
+.badge.bg-info {
+    background-color: #0dcaf0 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6c757d !important;
+}

@@ -1,0 +1,682 @@
+<!-- templates/auth/register.html - User Registration Page -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Windows System Automation Hub</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            padding: 2rem 0;
+        }
+        
+        .register-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            padding: 3rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #10b981, #667eea);
+            background-size: 200% 100%;
+            animation: gradientShift 3s linear infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        
+        .brand-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .brand-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 15px;
+            border-left: 4px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .form-section:hover {
+            border-left-color: #667eea;
+            background: #f1f5f9;
+        }
+        
+        .form-section h6 {
+            color: #475569;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            margin-right: 0.75rem;
+        }
+        
+        .form-control-modern {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .form-control-modern:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+            background: #fefefe;
+        }
+        
+        .form-label-modern {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .required-asterisk {
+            color: #ef4444;
+            margin-left: 0.25rem;
+            font-weight: bold;
+        }
+        
+        .register-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .register-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .register-button:hover::before {
+            left: 100%;
+        }
+        
+        .register-button:hover {
+            background: linear-gradient(135deg, #7c6aed, #8b5cf6);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .alert-modern {
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            animation: slideInDown 0.4s ease-out;
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .login-link a:hover {
+            color: #764ba2;
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            background: #e2e8f0;
+            overflow: hidden;
+            margin-top: 0.25rem;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 2px;
+        }
+        
+        .strength-weak { background-color: #ef4444; }
+        .strength-medium { background-color: #f59e0b; }
+        .strength-strong { background-color: #10b981; }
+        
+        .help-text {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-left: 3px solid #3b82f6;
+            font-size: 0.85rem;
+        }
+        
+        .slide-in {
+            animation: slideInUp 0.6s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 0 0.5rem;
+            }
+            
+            .register-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .form-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card slide-in">
+            <!-- Brand Section -->
+            <div class="brand-section">
+                <div class="brand-icon">
+                    <i class="fas fa-user-plus fa-2x text-white"></i>
+                </div>
+                <h2 class="fw-bold text-dark mb-1">Create Account</h2>
+                <p class="text-muted">Join Windows System Automation Hub</p>
+            </div>
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-modern" role="alert">
+                            <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Registration Form -->
+            <form method="POST" id="registerForm">
+                {{ form.hidden_tag() }}
+                
+                <!-- Account Information Section -->
+                <div class="form-section">
+                    <h6>
+                        <div class="section-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        Account Information
+                    </h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.username.id }}" class="form-label form-label-modern">
+                                Username <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.username(class="form-control form-control-modern", placeholder="Choose a unique username") }}
+                            {% if form.username.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.username.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.email.id }}" class="form-label form-label-modern">
+                                Email Address <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.email(class="form-control form-control-modern", placeholder="your.email@example.com") }}
+                            {% if form.email.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.email.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password.id }}" class="form-label form-label-modern">
+                                Password <span class="required-asterisk">*</span>
+                            </label>
+                            <div class="position-relative">
+                                {{ form.password(class="form-control form-control-modern", placeholder="Create a strong password", id="passwordField") }}
+                                <button type="button" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2" id="togglePassword" style="border: none; background: none; color: #6c757d;">
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength" id="passwordStrength" style="display: none;">
+                                <small class="text-muted">Password strength: <span id="strengthText">Weak</span></small>
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strengthBar" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.password.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.password_confirm.id }}" class="form-label form-label-modern">
+                                Confirm Password <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.password_confirm(class="form-control form-control-modern", placeholder="Confirm your password") }}
+                            {% if form.password_confirm.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.password_confirm.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Configuration Section -->
+                <div class="form-section">
+                    <h6>
+                        <div class="section-icon">
+                            <i class="fas fa-desktop"></i>
+                        </div>
+                        System Configuration
+                    </h6>
+                    
+                    <div class="help-text mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        This information helps us provide better analysis and support for your specific system configuration.
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.os_version.id }}" class="form-label form-label-modern">
+                                Operating System <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.os_version(class="form-control form-control-modern", placeholder="e.g., Windows 11 Pro") }}
+                            {% if form.os_version.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.os_version.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.processor.id }}" class="form-label form-label-modern">
+                                Processor <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.processor(class="form-control form-control-modern", placeholder="e.g., Intel Core i7-12700K") }}
+                            {% if form.processor.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.processor.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.ram_size.id }}" class="form-label form-label-modern">
+                                RAM <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.ram_size(class="form-control form-control-modern", placeholder="e.g., 16GB") }}
+                            {% if form.ram_size.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.ram_size.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.storage_type.id }}" class="form-label form-label-modern">
+                                Primary Storage <span class="required-asterisk">*</span>
+                            </label>
+                            {{ form.storage_type(class="form-control form-control-modern") }}
+                            {% if form.storage_type.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.storage_type.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.graphics_card.id }}" class="form-label form-label-modern">
+                                Graphics Card
+                            </label>
+                            {{ form.graphics_card(class="form-control form-control-modern", placeholder="e.g., NVIDIA RTX 4070 (Optional)") }}
+                            {% if form.graphics_card.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.graphics_card.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.motherboard.id }}" class="form-label form-label-modern">
+                                Motherboard
+                            </label>
+                            {{ form.motherboard(class="form-control form-control-modern", placeholder="e.g., ASUS ROG STRIX B550-F (Optional)") }}
+                            {% if form.motherboard.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.motherboard.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.additional_info.id }}" class="form-label form-label-modern">
+                            Additional System Information
+                        </label>
+                        {{ form.additional_info(class="form-control form-control-modern", rows="3", placeholder="Any other relevant system details, recent hardware changes, etc. (Optional)") }}
+                        {% if form.additional_info.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.additional_info.errors %}
+                                    <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <button type="submit" class="register-button" id="registerButton">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Create Account
+                </button>
+            </form>
+            
+            <!-- Login Link -->
+            <div class="login-link">
+                <p class="text-muted mb-2">Already have an account?</p>
+                <a href="{{ url_for('login') }}">
+                    <i class="fas fa-sign-in-alt me-1"></i>
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password toggle functionality
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('passwordField');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            togglePassword.addEventListener('click', function() {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                
+                toggleIcon.classList.toggle('fa-eye');
+                toggleIcon.classList.toggle('fa-eye-slash');
+            });
+            
+            // Password strength checker
+            const strengthIndicator = document.getElementById('passwordStrength');
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            
+            passwordField.addEventListener('input', function() {
+                const password = this.value;
+                
+                if (password.length === 0) {
+                    strengthIndicator.style.display = 'none';
+                    return;
+                }
+                
+                strengthIndicator.style.display = 'block';
+                
+                let strength = 0;
+                let strengthLabel = 'Weak';
+                let strengthClass = 'strength-weak';
+                
+                // Length check
+                if (password.length >= 8) strength += 25;
+                if (password.length >= 12) strength += 15;
+                
+                // Character variety checks
+                if (/[a-z]/.test(password)) strength += 15;
+                if (/[A-Z]/.test(password)) strength += 15;
+                if (/[0-9]/.test(password)) strength += 15;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 15;
+                
+                if (strength >= 70) {
+                    strengthLabel = 'Strong';
+                    strengthClass = 'strength-strong';
+                } else if (strength >= 40) {
+                    strengthLabel = 'Medium';
+                    strengthClass = 'strength-medium';
+                }
+                
+                strengthBar.style.width = Math.min(strength, 100) + '%';
+                strengthBar.className = 'strength-fill ' + strengthClass;
+                strengthText.textContent = strengthLabel;
+            });
+            
+            // Form validation
+            const registerForm = document.getElementById('registerForm');
+            const registerButton = document.getElementById('registerButton');
+            
+            registerForm.addEventListener('submit', function(e) {
+                const requiredFields = [
+                    'username', 'email', 'password', 'password_confirm',
+                    'os_version', 'processor', 'ram_size', 'storage_type'
+                ];
+                
+                let isValid = true;
+                
+                requiredFields.forEach(fieldName => {
+                    const field = document.getElementById(fieldName);
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.style.borderColor = '#ef4444';
+                    } else {
+                        field.style.borderColor = '#10b981';
+                    }
+                });
+                
+                // Password match check
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('password_confirm').value;
+                
+                if (password !== confirmPassword) {
+                    isValid = false;
+                    document.getElementById('password_confirm').style.borderColor = '#ef4444';
+                    showAlert('error', 'Passwords do not match.');
+                }
+                
+                // Email validation
+                const email = document.getElementById('email').value;
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email && !emailRegex.test(email)) {
+                    isValid = false;
+                    document.getElementById('email').style.borderColor = '#ef4444';
+                    showAlert('error', 'Please enter a valid email address.');
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Show loading state
+                registerButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Creating Account...';
+                registerButton.disabled = true;
+            });
+            
+            // Real-time field validation
+            const fields = document.querySelectorAll('.form-control-modern');
+            fields.forEach(field => {
+                field.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.style.borderColor = '#ef4444';
+                    } else {
+                        this.style.borderColor = '#10b981';
+                    }
+                });
+                
+                field.addEventListener('input', function() {
+                    if (this.style.borderColor === 'rgb(239, 68, 68)') {
+                        this.style.borderColor = '#e2e8f0';
+                    }
+                });
+            });
+            
+            // Auto-expand textarea
+            const textarea = document.getElementById('additional_info');
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.max(this.scrollHeight, 80) + 'px';
+            });
+        });
+        
+        function showAlert(type, message) {
+            const alertType = type === 'error' ? 'danger' : type;
+            const icon = type === 'error' ? 'exclamation-triangle' : 'check-circle';
+            
+            const alertHtml = `
+                <div class="alert alert-${alertType} alert-modern alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${icon} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            const form = document.getElementById('registerForm');
+            form.insertAdjacentHTML('beforebegin', alertHtml);
+            
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

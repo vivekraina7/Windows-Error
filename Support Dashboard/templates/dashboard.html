@@ -1,0 +1,305 @@
+<!-- templates/dashboard.html - Support Dashboard Main -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+        }
+        
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+        }
+        
+        .user-menu {
+            color: white;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .stat-card.total { border-left-color: #3b82f6; }
+        .stat-card.open { border-left-color: #f59e0b; }
+        .stat-card.assigned { border-left-color: #8b5cf6; }
+        .stat-card.resolved { border-left-color: #10b981; }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .ticket-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid;
+            transition: all 0.2s ease;
+        }
+        
+        .ticket-card:hover {
+            transform: translateX(3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+        
+        .ticket-open { border-left-color: #f59e0b; }
+        .ticket-in-progress { border-left-color: #8b5cf6; }
+        .ticket-resolved { border-left-color: #10b981; }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-open { background: #fef3c7; color: #92400e; }
+        .status-in-progress { background: #e0e7ff; color: #5b21b6; }
+        .status-resolved { background: #d1fae5; color: #065f46; }
+        
+        .priority-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .priority-low { background: #d1fae5; color: #065f46; }
+        .priority-medium { background: #fef3c7; color: #92400e; }
+        .priority-high { background: #fee2e2; color: #991b1b; }
+        .priority-critical { background: #fecaca; color: #7f1d1d; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-headset me-2"></i>
+                Support Dashboard
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('tickets') }}">
+                    <i class="fas fa-ticket-alt me-1"></i>All Tickets
+                </a>
+                <div class="user-menu dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                        ({{ current_user.role.title() }})
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <div class="stat-number text-primary">{{ total_tickets }}</div>
+                <div class="text-muted">Total Tickets</div>
+            </div>
+            
+            <div class="stat-card open">
+                <div class="stat-number text-warning">{{ open_tickets }}</div>
+                <div class="text-muted">Open Tickets</div>
+            </div>
+            
+            <div class="stat-card assigned">
+                <div class="stat-number text-purple">{{ assigned_tickets }}</div>
+                <div class="text-muted">My Assigned</div>
+            </div>
+            
+            <div class="stat-card resolved">
+                <div class="stat-number text-success">{{ resolved_tickets }}</div>
+                <div class="text-muted">Resolved</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- My Tickets -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-tie me-2"></i>
+                            My Assigned Tickets
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for ticket in my_tickets %}
+                        <div class="ticket-card ticket-{{ ticket.status.replace('_', '-') }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        <a href="{{ url_for('view_ticket', ticket_id=ticket.ticket_id) }}" class="text-decoration-none">
+                                            {{ ticket.title }}
+                                        </a>
+                                    </h6>
+                                    <div class="text-muted small">
+                                        #{{ ticket.ticket_id }} • {{ ticket.username }}
+                                        {% if ticket.error_code %}
+                                        • <code>{{ ticket.error_code }}</code>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="status-badge status-{{ ticket.status.replace('_', '-') }}">
+                                        {{ ticket.status.replace('_', ' ').title() }}
+                                    </span>
+                                    <div class="mt-1">
+                                        <span class="priority-badge priority-{{ ticket.priority }}">
+                                            {{ ticket.priority.title() }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center py-3">No assigned tickets</p>
+                        {% endfor %}
+                        
+                        {% if my_tickets %}
+                        <div class="text-center">
+                            <a href="{{ url_for('tickets', assigned='me') }}" class="btn btn-outline-primary btn-sm">
+                                View All My Tickets
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Unassigned Tickets (for round-robin or manager assignment) -->
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-transparent">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Unassigned Tickets
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for ticket in unassigned_tickets %}
+                        <div class="ticket-card ticket-{{ ticket.status.replace('_', '-') }}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">
+                                        <a href="{{ url_for('view_ticket', ticket_id=ticket.ticket_id) }}" class="text-decoration-none">
+                                            {{ ticket.title }}
+                                        </a>
+                                    </h6>
+                                    <div class="text-muted small">
+                                        #{{ ticket.ticket_id }} • {{ ticket.username }}
+                                        {% if ticket.error_code %}
+                                        • <code>{{ ticket.error_code }}</code>
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-muted small">
+                                        Created: {{ ticket.created_at.strftime('%m/%d %I:%M %p') }}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="priority-badge priority-{{ ticket.priority }}">
+                                        {{ ticket.priority.title() }}
+                                    </span>
+                                    <div class="mt-2">
+                                        <a href="{{ url_for('view_ticket', ticket_id=ticket.ticket_id) }}" class="btn btn-sm btn-primary">
+                                            Assign
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center py-3">
+                            <i class="fas fa-check-circle text-success"></i><br>
+                            All tickets are assigned!
+                        </p>
+                        {% endfor %}
+                        
+                        {% if unassigned_tickets %}
+                        <div class="text-center">
+                            <a href="{{ url_for('tickets', assigned='unassigned') }}" class="btn btn-outline-warning btn-sm">
+                                View All Unassigned
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(() => {
+            window.location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

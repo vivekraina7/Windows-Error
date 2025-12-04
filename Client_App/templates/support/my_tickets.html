@@ -1,0 +1,531 @@
+<!-- templates/support/my_tickets.html - User Ticket Management Page -->
+{% extends "base.html" %}
+
+{% block title %}My Support Tickets - Windows Dump Analyzer{% endblock %}
+
+{% block content %}
+<style>
+    .tickets-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .tickets-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.1;
+    }
+    
+    .tickets-header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .ticket-card {
+        background: white;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        border-left: 4px solid;
+    }
+    
+    .ticket-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .ticket-card.open { border-left-color: #3b82f6; }
+    .ticket-card.in-progress { border-left-color: #f59e0b; }
+    .ticket-card.pending-user { border-left-color: #8b5cf6; }
+    .ticket-card.resolved { border-left-color: #10b981; }
+    .ticket-card.closed { border-left-color: #6b7280; }
+    
+    .ticket-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .ticket-body {
+        padding: 1.5rem;
+    }
+    
+    .ticket-footer {
+        padding: 1rem 1.5rem;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-open {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: #1e40af;
+    }
+    
+    .status-in-progress {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        color: #92400e;
+    }
+    
+    .status-pending-user {
+        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        color: #5b21b6;
+    }
+    
+    .status-resolved {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+    }
+    
+    .status-closed {
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        color: #374151;
+    }
+    
+    .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .priority-low {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .priority-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .priority-high {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .priority-critical {
+        background: #fecaca;
+        color: #7f1d1d;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    
+    .ticket-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        color: #6b7280;
+        font-size: 0.85rem;
+    }
+    
+    .ticket-meta .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .ticket-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    
+    .btn-modern {
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-view {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+    }
+    
+    .btn-view:hover {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .filter-btn {
+        border: 2px solid #e2e8f0;
+        background: white;
+        color: #6b7280;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin: 0.25rem;
+        display: inline-block;
+    }
+    
+    .filter-btn:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-1px);
+    }
+    
+    .filter-btn.active {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-color: #667eea;
+        color: white;
+    }
+    
+    .pagination-modern .page-link {
+        border-radius: 10px;
+        margin: 0 0.25rem;
+        border: 2px solid #e2e8f0;
+        color: #6b7280;
+        font-weight: 600;
+    }
+    
+    .pagination-modern .page-link:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: #f8fafc;
+    }
+    
+    .pagination-modern .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-color: #667eea;
+    }
+    
+    .floating-icon {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+</style>
+
+<!-- Tickets Header -->
+<div class="tickets-header">
+    <div class="tickets-header-content">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold mb-2">
+                    <i class="fas fa-ticket-alt me-3"></i>
+                    My Support Tickets
+                </h1>
+                <p class="lead mb-0 opacity-75">Track and manage your support requests</p>
+            </div>
+            <div class="text-end">
+                <a href="{{ url_for('support') }}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus me-2"></i>
+                    New Ticket
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="filter-section">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <div>
+            <h6 class="fw-bold mb-2">Filter by Status:</h6>
+            <div class="filter-buttons">
+                <a href="{{ url_for('my_tickets') }}" class="filter-btn {{ 'active' if not status_filter }}">
+                    All Tickets
+                </a>
+                <a href="{{ url_for('my_tickets', status='open') }}" class="filter-btn {{ 'active' if status_filter == 'open' }}">
+                    Open
+                </a>
+                <a href="{{ url_for('my_tickets', status='in_progress') }}" class="filter-btn {{ 'active' if status_filter == 'in_progress' }}">
+                    In Progress
+                </a>
+                <a href="{{ url_for('my_tickets', status='pending_user') }}" class="filter-btn {{ 'active' if status_filter == 'pending_user' }}">
+                    Pending Response
+                </a>
+                <a href="{{ url_for('my_tickets', status='resolved') }}" class="filter-btn {{ 'active' if status_filter == 'resolved' }}">
+                    Resolved
+                </a>
+                <a href="{{ url_for('my_tickets', status='closed') }}" class="filter-btn {{ 'active' if status_filter == 'closed' }}">
+                    Closed
+                </a>
+            </div>
+        </div>
+        
+        <div class="text-muted">
+            <i class="fas fa-chart-bar me-1"></i>
+            Showing {{ tickets.items|length }} of {{ tickets.total }} tickets
+        </div>
+    </div>
+</div>
+
+<!-- Tickets List -->
+{% if tickets.items %}
+    {% for ticket in tickets.items %}
+    <div class="ticket-card {{ ticket.status.replace('_', '-') }}">
+        <div class="ticket-header">
+            <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <h5 class="fw-bold mb-2">
+                        <a href="{{ url_for('view_ticket', ticket_id=ticket.ticket_id) }}" class="text-decoration-none text-dark">
+                            {{ ticket.title }}
+                        </a>
+                    </h5>
+                    <div class="ticket-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-hashtag"></i>
+                            <span>{{ ticket.ticket_id }}</span>
+                        </div>
+                        {% if ticket.error_code %}
+                        <div class="meta-item">
+                            <i class="fas fa-bug"></i>
+                            <code>{{ ticket.error_code }}</code>
+                        </div>
+                        {% endif %}
+                        <div class="meta-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>{{ ticket.created_at.strftime('%B %d, %Y') }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ ticket.updated_at.strftime('%I:%M %p') }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-end">
+                    <div class="mb-2">
+                        <span class="status-badge status-{{ ticket.status.replace('_', '-') }}">
+                            {{ ticket.get_status_display() }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="priority-badge priority-{{ ticket.priority }}">
+                            {{ ticket.get_priority_display() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="ticket-body">
+            <p class="text-muted mb-0">{{ ticket.description[:150] }}{% if ticket.description|length > 150 %}...{% endif %}</p>
+        </div>
+        
+        <div class="ticket-footer">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="ticket-meta">
+                    {% if ticket.assigned_to %}
+                    <div class="meta-item">
+                        <i class="fas fa-user-tie text-success"></i>
+                        <span>Assigned to Support</span>
+                    </div>
+                    {% else %}
+                    <div class="meta-item">
+                        <i class="fas fa-hourglass-half text-warning"></i>
+                        <span>Awaiting Assignment</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="meta-item">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ ticket.messages|length }} message{{ 's' if ticket.messages|length != 1 else '' }}</span>
+                    </div>
+                </div>
+                
+                <div class="ticket-actions">
+                    <a href="{{ url_for('view_ticket', ticket_id=ticket.ticket_id) }}" class="btn btn-view btn-modern">
+                        <i class="fas fa-eye me-1"></i>
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <!-- Pagination -->
+    {% if tickets.pages > 1 %}
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Tickets pagination">
+            <ul class="pagination pagination-modern">
+                {% if tickets.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('my_tickets', page=tickets.prev_num, status=status_filter) }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for page_num in tickets.iter_pages() %}
+                    {% if page_num %}
+                        {% if page_num != tickets.page %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('my_tickets', page=page_num, status=status_filter) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ page_num }}</span>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if tickets.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('my_tickets', page=tickets.next_num, status=status_filter) }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+    
+{% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <div class="floating-icon mb-4">
+            {% if status_filter %}
+                <i class="fas fa-filter fa-4x text-muted"></i>
+            {% else %}
+                <i class="fas fa-ticket-alt fa-4x text-muted"></i>
+            {% endif %}
+        </div>
+        
+        {% if status_filter %}
+            <h3 class="text-muted fw-bold mb-3">No {{ status_filter.replace('_', ' ').title() }} Tickets</h3>
+            <p class="text-muted mb-4">You don't have any tickets with this status.</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{{ url_for('my_tickets') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list me-2"></i>
+                    View All Tickets
+                </a>
+                <a href="{{ url_for('support') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Create New Ticket
+                </a>
+            </div>
+        {% else %}
+            <h3 class="text-muted fw-bold mb-3">No Support Tickets Yet</h3>
+            <p class="text-muted mb-4 lead">When you need help with system issues, you can create support tickets here.</p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{{ url_for('support') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-headset me-2"></i>
+                    Get Support
+                </a>
+                <a href="{{ url_for('chatbot') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-robot me-2"></i>
+                    Try AI Assistant
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate ticket cards on load
+    const ticketCards = document.querySelectorAll('.ticket-card');
+    ticketCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Auto-refresh every 30 seconds for active tickets
+    const hasActiveTickets = document.querySelectorAll('.ticket-card.open, .ticket-card.in-progress, .ticket-card.pending-user').length > 0;
+    
+    if (hasActiveTickets) {
+        setInterval(() => {
+            // Silently check for updates
+            fetch(window.location.href, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // Could update status badges if needed
+                    console.log('Ticket status checked');
+                }
+            }).catch(error => {
+                console.log('Auto-refresh failed:', error);
+            });
+        }, 30000); // 30 seconds
+    }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+N for new ticket
+        if (e.ctrlKey && e.key === 'n') {
+            e.preventDefault();
+            window.location.href = "{{ url_for('support') }}";
+        }
+        
+        // Ctrl+R for refresh
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            window.location.reload();
+        }
+    });
+});
+</script>
+{% endblock %}

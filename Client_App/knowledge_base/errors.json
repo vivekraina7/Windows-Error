@@ -1,0 +1,524 @@
+{
+  "errors": [
+    {
+      "error_code": "0X0000001E",
+      "error_name": "KMODE_EXCEPTION_NOT_HANDLED",
+      "description": "A kernel-mode program generated an exception which the error handler didn't catch",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Update all device drivers through Device Manager",
+          "details": "Press Win+X, select Device Manager, right-click devices with yellow warnings, select 'Update driver'"
+        },
+        {
+          "step": 2,
+          "description": "Run Windows Memory Diagnostic tool",
+          "details": "Press Win+R, type 'mdsched.exe', restart when prompted"
+        },
+        {
+          "step": 3,
+          "description": "Check for hardware issues",
+          "details": "Reseat RAM modules and check all cable connections"
+        }
+      ],
+      "additional_info": "Often caused by faulty drivers or hardware",
+      "gemini_context": "This error typically requires driver updates and memory testing."
+    },
+    {
+      "error_code": "0X00000050",
+      "error_name": "PAGE_FAULT_IN_NONPAGED_AREA",
+      "description": "Invalid system memory references, usually indicating hardware problems",
+      "category": "hardware",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Test RAM with MemTest86",
+          "details": "Download MemTest86, create bootable USB, run full memory test overnight"
+        },
+        {
+          "step": 2,
+          "description": "Update system and device drivers",
+          "details": "Use Windows Update and visit manufacturer websites for latest drivers"
+        },
+        {
+          "step": 3,
+          "description": "Run full system scan for malware",
+          "details": "Use Windows Defender full scan or reputable antivirus software"
+        }
+      ],
+      "additional_info": "Often indicates failing RAM or storage devices",
+      "gemini_context": "This is typically a hardware issue. Help users understand memory testing."
+    },
+    {
+      "error_code": "0X0000007E",
+      "error_name": "SYSTEM_THREAD_EXCEPTION_NOT_HANDLED",
+      "description": "A system thread generated an exception which the error handler didn't catch",
+      "category": "software",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Boot in Safe Mode",
+          "details": "Hold Shift while clicking Restart, select Troubleshoot > Advanced Options > Startup Settings > Restart > F4"
+        },
+        {
+          "step": 2,
+          "description": "Uninstall recently installed software",
+          "details": "Go to Settings > Apps & features, sort by install date, uninstall recent programs"
+        },
+        {
+          "step": 3,
+          "description": "Update BIOS/UEFI firmware",
+          "details": "Visit manufacturer's website, download latest BIOS update for your motherboard model"
+        }
+      ],
+      "additional_info": "Usually caused by incompatible software or outdated system firmware",
+      "gemini_context": "Focus on recent software changes and system updates."
+    },
+    {
+      "error_code": "0X0000000A",
+      "error_name": "IRQL_NOT_LESS_OR_EQUAL",
+      "description": "A kernel-mode process or driver attempted to access memory at too high an IRQL",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Remove recently installed hardware",
+          "details": "Disconnect USB devices, remove new expansion cards, restore to previous hardware configuration"
+        },
+        {
+          "step": 2,
+          "description": "Update network and graphics drivers",
+          "details": "Visit AMD/NVIDIA/Intel websites for graphics drivers, router manufacturer for network drivers"
+        },
+        {
+          "step": 3,
+          "description": "Temporarily disable antivirus software",
+          "details": "Right-click antivirus system tray icon, select disable protection temporarily"
+        }
+      ],
+      "additional_info": "Usually caused by faulty drivers, especially network or graphics drivers",
+      "gemini_context": "Focus on driver conflicts and recent hardware changes."
+    },
+    {
+      "error_code": "0X000000EF",
+      "error_name": "CRITICAL_PROCESS_DIED",
+      "description": "A critical system process terminated unexpectedly",
+      "category": "system",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Run System File Checker",
+          "details": "Open Command Prompt as administrator, run 'sfc /scannow', wait for completion"
+        },
+        {
+          "step": 2,
+          "description": "Reset Windows Update components",
+          "details": "Run 'net stop wuauserv', 'net stop cryptSvc', 'net stop bits', then restart these services"
+        },
+        {
+          "step": 3,
+          "description": "Perform System Restore",
+          "details": "Type 'rstrui.exe' in Run dialog, select restore point before the issue started"
+        }
+      ],
+      "additional_info": "Indicates corruption in critical Windows processes or files",
+      "gemini_context": "This is a serious system integrity issue."
+    },
+    {
+      "error_code": "0X0000007F",
+      "error_name": "UNEXPECTED_KERNEL_MODE_TRAP",
+      "description": "The kernel trapped an exception which was unexpected or unknown",
+      "category": "hardware",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Check CPU temperature and cooling system",
+          "details": "Use HWiNFO64 or similar tool to monitor CPU temperatures. Clean dust from fans and heat sinks"
+        },
+        {
+          "step": 2,
+          "description": "Test system memory thoroughly",
+          "details": "Run extended memory test with MemTest86+ for at least 8 hours or multiple passes"
+        },
+        {
+          "step": 3,
+          "description": "Reset BIOS to default settings",
+          "details": "Enter BIOS setup, load optimized defaults, disable any overclocking"
+        }
+      ],
+      "additional_info": "Often indicates hardware failure, particularly CPU, RAM, or overheating issues",
+      "gemini_context": "This error usually points to serious hardware problems requiring immediate attention."
+    },
+    {
+      "error_code": "0X000000D1",
+      "error_name": "DRIVER_IRQL_NOT_LESS_OR_EQUAL",
+      "description": "A driver attempted to access pageable memory at too high an IRQL",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Identify and update the problematic driver",
+          "details": "Check Event Viewer for driver details, visit manufacturer website for latest version"
+        },
+        {
+          "step": 2,
+          "description": "Roll back recent driver updates",
+          "details": "In Device Manager, right-click device, Properties > Driver > Roll Back Driver"
+        },
+        {
+          "step": 3,
+          "description": "Disable or uninstall conflicting software",
+          "details": "Boot in Safe Mode and uninstall recently installed programs or drivers"
+        }
+      ],
+      "additional_info": "Most commonly caused by network, graphics, or audio drivers",
+      "gemini_context": "Help users identify the specific driver causing issues through Event Viewer."
+    },
+    {
+      "error_code": "0X00000024",
+      "error_name": "NTFS_FILE_SYSTEM",
+      "description": "A problem occurred within the NTFS file system driver",
+      "category": "system",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Run Check Disk utility",
+          "details": "Open Command Prompt as admin, run 'chkdsk C: /f /r', restart when prompted"
+        },
+        {
+          "step": 2,
+          "description": "Test hard drive health",
+          "details": "Use CrystalDiskInfo or manufacturer's diagnostic tool to check drive health"
+        },
+        {
+          "step": 3,
+          "description": "Backup data and consider drive replacement",
+          "details": "If errors persist, backup important data immediately and prepare for drive replacement"
+        }
+      ],
+      "additional_info": "Often indicates failing hard drive or file system corruption",
+      "gemini_context": "This is a serious error that may indicate imminent drive failure. Emphasize data backup."
+    },
+    {
+      "error_code": "0X0000003B",
+      "error_name": "SYSTEM_SERVICE_EXCEPTION",
+      "description": "A system service generated an exception error",
+      "category": "software",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Boot into Safe Mode",
+          "details": "Restart holding Shift, select Troubleshoot > Advanced > Startup Settings > Safe Mode"
+        },
+        {
+          "step": 2,
+          "description": "Run System File Checker",
+          "details": "Open Command Prompt as admin, run 'sfc /scannow' followed by 'DISM /Online /Cleanup-Image /RestoreHealth'"
+        },
+        {
+          "step": 3,
+          "description": "Update or rollback Windows updates",
+          "details": "Check Windows Update for pending updates or uninstall recent updates if problems started after installation"
+        }
+      ],
+      "additional_info": "Can be caused by corrupted system files, bad drivers, or faulty Windows updates",
+      "gemini_context": "Focus on system integrity and recent changes that might have corrupted system services."
+    },
+    {
+      "error_code": "0X000000C2",
+      "error_name": "BAD_POOL_CALLER",
+      "description": "A kernel-mode process or driver incorrectly attempted to allocate or free memory",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Update all device drivers",
+          "details": "Use Device Manager or manufacturer websites to update graphics, network, and storage drivers"
+        },
+        {
+          "step": 2,
+          "description": "Remove recently installed software",
+          "details": "Uninstall programs installed around the time errors started, especially security software"
+        },
+        {
+          "step": 3,
+          "description": "Run memory diagnostic tests",
+          "details": "Use Windows Memory Diagnostic (mdsched.exe) and MemTest86 for thorough testing"
+        }
+      ],
+      "additional_info": "Usually caused by faulty drivers or incompatible software accessing memory incorrectly",
+      "gemini_context": "Help identify recently installed drivers or software that might be causing memory allocation issues."
+    },
+    {
+      "error_code": "0X0000009C",
+      "error_name": "MACHINE_CHECK_EXCEPTION",
+      "description": "A fatal machine check exception occurred",
+      "category": "hardware",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Check system temperatures",
+          "details": "Use monitoring software to check CPU, GPU temperatures. Clean fans and ensure proper ventilation"
+        },
+        {
+          "step": 2,
+          "description": "Test power supply stability",
+          "details": "Check PSU connections, test with known good PSU if available. Monitor voltage rails"
+        },
+        {
+          "step": 3,
+          "description": "Reset hardware to default settings",
+          "details": "Disable overclocking, reset BIOS to defaults, remove any hardware modifications"
+        }
+      ],
+      "additional_info": "Indicates serious hardware problem, often CPU, motherboard, or power supply related",
+      "gemini_context": "This is a critical hardware error requiring immediate attention to prevent damage."
+    },
+    {
+      "error_code": "0X000000F4",
+      "error_name": "CRITICAL_OBJECT_TERMINATION",
+      "description": "A critical system process or thread unexpectedly terminated",
+      "category": "system",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Boot from Windows installation media",
+          "details": "Create Windows installation USB, boot from it, select Repair your computer"
+        },
+        {
+          "step": 2,
+          "description": "Run Startup Repair",
+          "details": "In recovery environment, select Troubleshoot > Advanced > Startup Repair"
+        },
+        {
+          "step": 3,
+          "description": "Perform system restore or reset",
+          "details": "Use System Restore to previous working point or consider Windows Reset keeping files"
+        }
+      ],
+      "additional_info": "Severe system corruption, often requiring repair or reinstallation",
+      "gemini_context": "This indicates severe system damage. Guide users through recovery options carefully."
+    },
+    {
+      "error_code": "0X00000116",
+      "error_name": "VIDEO_TDR_FAILURE",
+      "description": "The display driver failed to respond in time and was reset",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Update graphics drivers",
+          "details": "Download latest drivers from NVIDIA, AMD, or Intel websites. Use DDU to clean install if needed"
+        },
+        {
+          "step": 2,
+          "description": "Reduce graphics settings and disable overclocking",
+          "details": "Lower game settings, disable GPU overclocking, set power management to maximum performance"
+        },
+        {
+          "step": 3,
+          "description": "Check graphics card temperatures and power",
+          "details": "Monitor GPU temperatures, ensure adequate power supply, check for dust buildup"
+        }
+      ],
+      "additional_info": "Common with graphics cards under stress or with driver issues",
+      "gemini_context": "Focus on graphics driver issues and GPU stability problems."
+    },
+    {
+      "error_code": "0X0000012B",
+      "error_name": "FAULTY_HARDWARE_CORRUPTED_PAGE",
+      "description": "Windows detected that critical kernel code or data has been corrupted",
+      "category": "hardware",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Run comprehensive memory test",
+          "details": "Use MemTest86 for overnight testing, test each RAM stick individually"
+        },
+        {
+          "step": 2,
+          "description": "Check all hardware connections",
+          "details": "Reseat RAM modules, graphics card, and all cables. Clean contacts with isopropyl alcohol"
+        },
+        {
+          "step": 3,
+          "description": "Test with minimal hardware configuration",
+          "details": "Remove all non-essential hardware, test with single RAM module, integrated graphics if available"
+        }
+      ],
+      "additional_info": "Indicates hardware corruption, usually memory or motherboard related",
+      "gemini_context": "This suggests serious hardware problems requiring systematic testing and isolation."
+    },
+    {
+      "error_code": "0X000000BE",
+      "error_name": "ATTEMPTED_WRITE_TO_READONLY_MEMORY",
+      "description": "A driver attempted to write to read-only memory",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Identify and update the problematic driver",
+          "details": "Check crash dump details for driver name, download latest version from manufacturer"
+        },
+        {
+          "step": 2,
+          "description": "Disable driver signature enforcement temporarily",
+          "details": "Boot to Advanced Startup, select Disable driver signature enforcement for testing"
+        },
+        {
+          "step": 3,
+          "description": "Roll back to previous working driver version",
+          "details": "In Device Manager, find device, Properties > Driver > Roll Back Driver"
+        }
+      ],
+      "additional_info": "Often caused by unsigned or corrupted drivers",
+      "gemini_context": "Help users identify the specific driver and guide through safe driver management."
+    },
+    {
+      "error_code": "0X0000007A",
+      "error_name": "KERNEL_DATA_INPAGE_ERROR",
+      "description": "The kernel failed to read data from the paging file",
+      "category": "hardware",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Test hard drive for errors",
+          "details": "Run 'chkdsk C: /f /r' from Command Prompt as administrator, allow full scan on restart"
+        },
+        {
+          "step": 2,
+          "description": "Check drive health and SMART status",
+          "details": "Use CrystalDiskInfo or HD Tune to check drive health metrics and SMART data"
+        },
+        {
+          "step": 3,
+          "description": "Test system memory",
+          "details": "Run Windows Memory Diagnostic and MemTest86 to rule out RAM issues"
+        }
+      ],
+      "additional_info": "Usually indicates failing storage device or bad sectors on hard drive",
+      "gemini_context": "This often indicates storage device failure. Emphasize immediate data backup."
+    },
+    {
+      "error_code": "0X000000C5",
+      "error_name": "DRIVER_CORRUPTED_EXPOOL",
+      "description": "A driver corrupted system memory pool",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Update all system drivers",
+          "details": "Focus on recently updated drivers, especially graphics, network, and storage controllers"
+        },
+        {
+          "step": 2,
+          "description": "Remove problematic software",
+          "details": "Uninstall recently installed programs, especially those with kernel-mode components"
+        },
+        {
+          "step": 3,
+          "description": "Run system integrity checks",
+          "details": "Execute 'sfc /scannow' and 'DISM /Online /Cleanup-Image /RestoreHealth' as administrator"
+        }
+      ],
+      "additional_info": "Caused by drivers incorrectly managing system memory pools",
+      "gemini_context": "Focus on identifying recently changed drivers or software that might be corrupting memory."
+    },
+    {
+      "error_code": "0X00000109",
+      "error_name": "CRITICAL_STRUCTURE_CORRUPTION",
+      "description": "The kernel detected corruption in a critical data structure",
+      "category": "system",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Run comprehensive system file check",
+          "details": "Execute 'sfc /scannow' followed by 'DISM /Online /Cleanup-Image /RestoreHealth' with admin privileges"
+        },
+        {
+          "step": 2,
+          "description": "Perform Windows repair installation",
+          "details": "Use Windows installation media, select 'Upgrade' to repair while keeping files and programs"
+        },
+        {
+          "step": 3,
+          "description": "Check for malware infection",
+          "details": "Boot from antivirus rescue disk, run full system scan with multiple antimalware tools"
+        }
+      ],
+      "additional_info": "Can indicate malware infection, system file corruption, or failing hardware",
+      "gemini_context": "This is serious system corruption that may require repair installation or malware removal."
+    },
+    {
+      "error_code": "0X0000001A",
+      "error_name": "MEMORY_MANAGEMENT",
+      "description": "A severe memory management error occurred",
+      "category": "hardware",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Test RAM with comprehensive memory diagnostic",
+          "details": "Run MemTest86+ overnight with multiple passes, test each module individually"
+        },
+        {
+          "step": 2,
+          "description": "Check virtual memory settings",
+          "details": "Ensure paging file is properly configured, set to system managed or 1.5x RAM size"
+        },
+        {
+          "step": 3,
+          "description": "Update chipset and memory controller drivers",
+          "details": "Download latest chipset drivers from motherboard manufacturer website"
+        }
+      ],
+      "additional_info": "Usually indicates faulty RAM or memory controller issues",
+      "gemini_context": "Memory management errors typically point to hardware problems requiring systematic testing."
+    },
+    {
+      "error_code": "0X000000D8",
+      "error_name": "DRIVER_USED_EXCESSIVE_PTES",
+      "description": "A driver used too many Page Table Entries (PTEs)",
+      "category": "driver",
+      "confidence": "high",
+      "solutions": [
+        {
+          "step": 1,
+          "description": "Identify memory-intensive drivers",
+          "details": "Use Process Explorer or Resource Monitor to identify drivers using excessive memory"
+        },
+        {
+          "step": 2,
+          "description": "Update or rollback problematic drivers",
+          "details": "Focus on graphics, network, and storage drivers that might have memory leaks"
+        },
+        {
+          "step": 3,
+          "description": "Increase system virtual memory",
+          "details": "Temporarily increase paging file size while addressing root cause driver issues"
+        }
+      ],
+      "additional_info": "Often caused by drivers with memory leaks or excessive memory allocation",
+      "gemini_context": "Help users identify drivers consuming excessive memory and guide through memory management."
+    }
+  ]
+}

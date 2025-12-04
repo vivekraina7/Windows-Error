@@ -1,0 +1,348 @@
+<!-- templates/auth/profile.html - User Profile Page -->
+{% extends "base.html" %}
+
+{% block title %}Profile - Windows System Automation Hub{% endblock %}
+
+{% block content %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.1;
+    }
+    
+    .profile-header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .user-avatar-large {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-right: 2rem;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
+    
+    .profile-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .info-row {
+        padding: 1rem 0;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #374151;
+        min-width: 150px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .info-value {
+        color: #6b7280;
+    }
+    
+    .btn-modern {
+        border-radius: 20px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .btn-primary-modern:hover {
+        background: linear-gradient(135deg, #7c6aed, #8b5cf6);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-outline-modern {
+        background: white;
+        border: 2px solid #e2e8f0;
+        color: #6b7280;
+    }
+    
+    .btn-outline-modern:hover {
+        border-color: #667eea;
+        color: #667eea;
+        transform: translateY(-1px);
+    }
+    
+    .system-spec {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-left: 4px solid #667eea;
+    }
+    
+    .spec-title {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .spec-value {
+        color: #6b7280;
+        font-size: 0.95rem;
+    }
+</style>
+
+<!-- Profile Header -->
+<div class="profile-header">
+    <div class="profile-header-content">
+        <div class="d-flex align-items-center">
+            <div class="user-avatar-large">
+                {{ current_user.username[0].upper() }}
+            </div>
+            <div class="flex-grow-1">
+                <h1 class="display-6 fw-bold mb-2">{{ current_user.username }}</h1>
+                <p class="lead mb-1 opacity-75">{{ current_user.email }}</p>
+                <div class="d-flex align-items-center text-white-50">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    <span>Member since {{ current_user.created_at.strftime('%B %Y') }}</span>
+                </div>
+            </div>
+            <div class="text-end">
+                <a href="{{ url_for('edit_profile') }}" class="btn btn-light btn-modern me-2">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </a>
+                <a href="{{ url_for('change_password') }}" class="btn btn-outline-light btn-modern">
+                    <i class="fas fa-lock me-2"></i>Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Account Information -->
+    <div class="col-lg-6">
+        <div class="profile-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-user text-primary me-2"></i>
+                Account Information
+            </h5>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-user me-2 text-muted"></i>
+                    Username:
+                </div>
+                <div class="info-value">{{ current_user.username }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-envelope me-2 text-muted"></i>
+                    Email:
+                </div>
+                <div class="info-value">{{ current_user.email }}</div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-calendar me-2 text-muted"></i>
+                    Created:
+                </div>
+                <div class="info-value">{{ current_user.created_at.strftime('%B %d, %Y at %I:%M %p') }}</div>
+            </div>
+            
+            {% if current_user.last_login %}
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-clock me-2 text-muted"></i>
+                    Last Login:
+                </div>
+                <div class="info-value">{{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- System Configuration -->
+    <div class="col-lg-6">
+        <div class="profile-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-desktop text-info me-2"></i>
+                System Configuration
+            </h5>
+            
+            {% set config = current_user.get_system_config_dict() %}
+            {% if config %}
+                <div class="system-spec">
+                    <div class="spec-title">Operating System</div>
+                    <div class="spec-value">{{ config.get('os_version', 'Not specified') }}</div>
+                </div>
+                
+                <div class="system-spec">
+                    <div class="spec-title">Processor</div>
+                    <div class="spec-value">{{ config.get('processor', 'Not specified') }}</div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="system-spec">
+                            <div class="spec-title">RAM</div>
+                            <div class="spec-value">{{ config.get('ram_size', 'Not specified') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="system-spec">
+                            <div class="spec-title">Storage</div>
+                            <div class="spec-value">{{ config.get('storage_type', 'Not specified').upper() }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if config.get('graphics_card') and config.get('graphics_card') != 'Not specified' %}
+                <div class="system-spec">
+                    <div class="spec-title">Graphics Card</div>
+                    <div class="spec-value">{{ config.get('graphics_card') }}</div>
+                </div>
+                {% endif %}
+                
+                {% if config.get('motherboard') and config.get('motherboard') != 'Not specified' %}
+                <div class="system-spec">
+                    <div class="spec-title">Motherboard</div>
+                    <div class="spec-value">{{ config.get('motherboard') }}</div>
+                </div>
+                {% endif %}
+                
+                {% if config.get('additional_info') %}
+                <div class="system-spec">
+                    <div class="spec-title">Additional Information</div>
+                    <div class="spec-value">{{ config.get('additional_info') }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Last updated: {{ config.get('updated_at', 'Unknown') }}
+                    </small>
+                </div>
+            {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-desktop fa-3x mb-3"></i>
+                    <p>No system configuration available.</p>
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-outline-primary btn-modern">
+                        <i class="fas fa-plus me-2"></i>Add System Info
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Activity Statistics -->
+<div class="row">
+    <div class="col-12">
+        <div class="profile-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-chart-bar text-success me-2"></i>
+                Activity Statistics
+            </h5>
+            
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="system-spec text-center">
+                        <div class="h4 fw-bold text-primary">{{ current_user.dump_analyses|length }}</div>
+                        <div class="spec-title">Dump Analyses</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="system-spec text-center">
+                        <div class="h4 fw-bold text-warning">{{ current_user.tickets|length }}</div>
+                        <div class="spec-title">Support Tickets</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="system-spec text-center">
+                        <div class="h4 fw-bold text-info">{{ current_user.conversations|length }}</div>
+                        <div class="spec-title">AI Conversations</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="system-spec text-center">
+                        <div class="h4 fw-bold text-success">{{ current_user.solution_feedbacks|length }}</div>
+                        <div class="spec-title">Solution Feedback</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="profile-card">
+            <h5 class="fw-bold mb-3">
+                <i class="fas fa-bolt text-warning me-2"></i>
+                Quick Actions
+            </h5>
+            
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="{{ url_for('index') }}" class="btn btn-primary-modern btn-modern">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('my_tickets') }}" class="btn btn-outline-modern btn-modern">
+                    <i class="fas fa-ticket-alt me-2"></i>
+                    My Tickets
+                </a>
+                <a href="{{ url_for('support') }}" class="btn btn-outline-modern btn-modern">
+                    <i class="fas fa-headset me-2"></i>
+                    Get Support
+                </a>
+                <a href="{{ url_for('chatbot') }}" class="btn btn-outline-modern btn-modern">
+                    <i class="fas fa-robot me-2"></i>
+                    AI Assistant
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

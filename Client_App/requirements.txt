@@ -1,0 +1,7 @@
+Flask
+Werkzeug
+google-genai
+watchdog
+psutil
+requests
+python-dotenv

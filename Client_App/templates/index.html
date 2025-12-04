@@ -1,0 +1,566 @@
+<!-- templates/dashboard/index.html - Updated Dashboard with User Authentication -->
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .welcome-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.1;
+    }
+    
+    .welcome-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .user-avatar {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .stat-card.analyses { border-left-color: #3b82f6; }
+    .stat-card.tickets { border-left-color: #f59e0b; }
+    .stat-card.resolved { border-left-color: #10b981; }
+    .stat-card.pending { border-left-color: #ef4444; }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .analyses .stat-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .tickets .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .resolved .stat-icon { background: linear-gradient(135deg, #10b981, #047857); }
+    .pending .stat-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    
+    .activity-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    
+    .activity-item:hover {
+        background: #f8fafc;
+        border-left-color: #667eea;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        color: white;
+    }
+    
+    .scan-button-enhanced {
+        background: linear-gradient(45deg, #28a745, #20c997);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        padding: 1rem 2rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .scan-button-enhanced:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4);
+        background: linear-gradient(45deg, #34ce57, #28a745);
+    }
+    
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .action-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+        color: inherit;
+        text-decoration: none;
+    }
+    
+    .action-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        color: white;
+    }
+    
+    .recent-ticket {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        border-left: 4px solid;
+        transition: all 0.2s ease;
+    }
+    
+    .recent-ticket:hover {
+        background: #f1f5f9;
+        transform: translateX(3px);
+    }
+    
+    .ticket-open { border-left-color: #3b82f6; }
+    .ticket-in-progress { border-left-color: #f59e0b; }
+    .ticket-resolved { border-left-color: #10b981; }
+    .ticket-closed { border-left-color: #6b7280; }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-open { background: #dbeafe; color: #1e40af; }
+    .status-in-progress { background: #fef3c7; color: #92400e; }
+    .status-resolved { background: #d1fae5; color: #065f46; }
+    .status-closed { background: #f3f4f6; color: #374151; }
+    
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+    
+    @keyframes floating {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+        100% { transform: translateY(0px); }
+    }
+</style>
+
+<!-- Welcome Section -->
+<div class="welcome-section">
+    <div class="welcome-content">
+        <div class="d-flex align-items-center">
+            <div class="user-avatar">
+                {{ current_user.username[0].upper() }}
+            </div>
+            <div class="flex-grow-1">
+                <h2 class="fw-bold mb-1">Welcome back, {{ current_user.username }}!</h2>
+                <p class="mb-0 opacity-75">
+                    {% if current_user.last_login %}
+                        Last login: {{ current_user.last_login.strftime('%B %d, %Y at %I:%M %p') }}
+                    {% else %}
+                        Welcome to Windows System Automation Hub
+                    {% endif %}
+                </p>
+            </div>
+            <div class="text-end">
+                <button id="scanBtn" class="scan-button-enhanced floating">
+                    <i class="fas fa-play me-2"></i>
+                    Start System Scan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Grid -->
+<div class="stats-grid">
+    <div class="stat-card analyses">
+        <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <h3 class="fw-bold mb-1">{{ total_analyses }}</h3>
+        <p class="text-muted mb-0">Total Analyses</p>
+    </div>
+    
+    <div class="stat-card tickets">
+        <div class="stat-icon">
+            <i class="fas fa-ticket-alt"></i>
+        </div>
+        <h3 class="fw-bold mb-1">{{ total_tickets }}</h3>
+        <p class="text-muted mb-0">Support Tickets</p>
+    </div>
+    
+    <div class="stat-card resolved">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 class="fw-bold mb-1">
+            {% set resolved_count = recent_tickets | selectattr('status', 'equalto', 'resolved') | list | length %}
+            {{ resolved_count }}
+        </h3>
+        <p class="text-muted mb-0">Resolved Issues</p>
+    </div>
+    
+    <div class="stat-card pending">
+        <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+        </div>
+        <h3 class="fw-bold mb-1">
+            {% set pending_count = recent_tickets | rejectattr('status', 'in', ['resolved', 'closed']) | list | length %}
+            {{ pending_count }}
+        </h3>
+        <p class="text-muted mb-0">Pending Issues</p>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <a href="{{ url_for('my_tickets') }}" class="action-card">
+        <div class="action-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+            <i class="fas fa-ticket-alt"></i>
+        </div>
+        <h6 class="fw-bold">My Tickets</h6>
+        <p class="text-muted small mb-0">View and manage your support requests</p>
+    </a>
+    
+    <a href="{{ url_for('support') }}" class="action-card">
+        <div class="action-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+            <i class="fas fa-headset"></i>
+        </div>
+        <h6 class="fw-bold">Get Support</h6>
+        <p class="text-muted small mb-0">Create a new support ticket</p>
+    </a>
+    
+    <a href="{{ url_for('chatbot') }}" class="action-card">
+        <div class="action-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+            <i class="fas fa-robot"></i>
+        </div>
+        <h6 class="fw-bold">AI Assistant</h6>
+        <p class="text-muted small mb-0">Chat with our AI for instant help</p>
+    </a>
+    
+    <a href="{{ url_for('profile') }}" class="action-card">
+        <div class="action-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+            <i class="fas fa-user-cog"></i>
+        </div>
+        <h6 class="fw-bold">Profile</h6>
+        <p class="text-muted small mb-0">Manage your account settings</p>
+    </a>
+</div>
+
+<!-- Recent Activity -->
+{% if recent_analyses or recent_tickets %}
+<div class="row">
+    {% if recent_analyses %}
+    <div class="col-lg-6">
+        <div class="activity-section">
+            <div class="section-header">
+                <h5 class="fw-bold mb-0">
+                    <i class="fas fa-history text-primary me-2"></i>
+                    Recent Analyses
+                </h5>
+                <a href="{{ url_for('scan_results') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            
+            {% for analysis in recent_analyses %}
+            <div class="activity-item">
+                <div class="activity-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                    <i class="fas fa-file-code"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fw-medium">{{ analysis.filename }}</div>
+                    <div class="text-muted small">
+                        {% if analysis.error_code %}
+                            Error: <code>{{ analysis.error_code }}</code>
+                        {% else %}
+                            No error detected
+                        {% endif %}
+                    </div>
+                    <div class="text-muted small">{{ analysis.created_at.strftime('%m/%d/%Y %I:%M %p') }}</div>
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-{{ 'success' if analysis.confidence == 'high' else 'warning' if analysis.confidence == 'medium' else 'secondary' }}">
+                        {{ analysis.confidence or 'Unknown' }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if recent_tickets %}
+    <div class="col-lg-6">
+        <div class="activity-section">
+            <div class="section-header">
+                <h5 class="fw-bold mb-0">
+                    <i class="fas fa-ticket-alt text-warning me-2"></i>
+                    Recent Tickets
+                </h5>
+                <a href="{{ url_for('my_tickets') }}" class="btn btn-sm btn-outline-warning">View All</a>
+            </div>
+            
+            {% for ticket in recent_tickets %}
+            <div class="recent-ticket ticket-{{ ticket.status.replace('_', '-') }}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="fw-medium">
+                            <a href="{{ url_for('view_ticket', ticket_id=ticket.ticket_id) }}" class="text-decoration-none">
+                                {{ ticket.title }}
+                            </a>
+                        </div>
+                        <div class="text-muted small">
+                            Ticket #{{ ticket.ticket_id }}
+                            {% if ticket.error_code %}
+                                • Error: <code>{{ ticket.error_code }}</code>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted small">{{ ticket.created_at.strftime('%m/%d/%Y %I:%M %p') }}</div>
+                    </div>
+                    <div class="text-end">
+                        <span class="status-badge status-{{ ticket.status.replace('_', '-') }}">
+                            {{ ticket.get_status_display() }}
+                        </span>
+                        <div class="text-muted small mt-1">
+                            Priority: {{ ticket.get_priority_display() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<!-- Getting Started Section -->
+<div class="activity-section text-center">
+    <div class="floating mb-4">
+        <i class="fas fa-rocket fa-4x text-primary"></i>
+    </div>
+    <h4 class="fw-bold mb-3">Ready to Get Started?</h4>
+    <p class="text-muted mb-4 lead">Begin by scanning your system for dump files or explore our AI-powered assistance.</p>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <button id="scanBtnSecondary" class="btn btn-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>
+                    Scan System
+                </button>
+                <a href="{{ url_for('chatbot') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-robot me-2"></i>
+                    Ask AI Assistant
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#scanBtn, #scanBtnSecondary').click(function() {
+        startScan();
+    });
+});
+
+function startScan() {
+    // Show loading modal
+    showLoadingModal('Scanning for dump files...');
+    
+    // Start progress animation
+    animateProgress();
+    
+    // Make scan request
+    $.ajax({
+        url: '/scan',
+        method: 'POST',
+        success: function(response) {
+            hideLoadingModal();
+            
+            if (response.status === 'success') {
+                // Show success notification
+                showAlert('success', `Scan completed! Found ${response.count} dump file(s) for analysis.`);
+                
+                // Redirect to results page
+                const resultsUrl = '/scan_results?results=' + encodeURIComponent(JSON.stringify(response.results));
+                window.location.href = resultsUrl;
+            } else if (response.status === 'no_files') {
+                showAlert('info', 'No dump files found. Your system appears to be running smoothly!');
+            }
+        },
+        error: function(xhr, status, error) {
+            hideLoadingModal();
+            console.error('Scan error:', error);
+            
+            let errorMessage = 'Scan failed. Please try again.';
+            if (xhr.status === 403) {
+                errorMessage = 'Access denied. Please run as administrator for system directory access.';
+            } else if (xhr.status === 500) {
+                errorMessage = 'Server error occurred. Please contact support if the issue persists.';
+            }
+            
+            showAlert('error', errorMessage);
+        }
+    });
+}
+
+function animateProgress() {
+    let progress = 0;
+    const progressSteps = [
+        { percent: 15, text: 'Checking system directories...' },
+        { percent: 35, text: 'Validating dump files...' },
+        { percent: 55, text: 'Analyzing dump patterns...' },
+        { percent: 75, text: 'Searching knowledge base...' },
+        { percent: 95, text: 'Preparing results...' }
+    ];
+    
+    let currentStep = 0;
+    
+    const interval = setInterval(function() {
+        if (currentStep < progressSteps.length) {
+            const step = progressSteps[currentStep];
+            updateLoadingProgress(step.percent, step.text);
+            currentStep++;
+        } else {
+            clearInterval(interval);
+        }
+    }, 800);
+    
+    // Clear interval when modal is hidden
+    $('#loadingModal').on('hidden.bs.modal', function() {
+        clearInterval(interval);
+    });
+}
+
+// Auto-refresh stats every 5 minutes
+setInterval(function() {
+    $.ajax({
+        url: '/api/stats',
+        method: 'GET',
+        success: function(data) {
+            // Update stats if endpoint exists
+            console.log('Stats updated');
+        },
+        error: function() {
+            // Fail silently
+        }
+    });
+}, 300000); // 5 minutes
+
+// Welcome animation
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+    
+    // Animate action cards
+    const actionCards = document.querySelectorAll('.action-card');
+    actionCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, (index * 100) + 200);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,595 @@
+<!-- templates/support/support.html - FIXED Support Contact Form -->
+{% extends "base.html" %}
+
+{% block title %}Support - Windows Dump Analyzer{% endblock %}
+
+{% block content %}
+<style>
+    .support-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 3rem 2rem;
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+    
+    .support-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.1;
+    }
+    
+    .support-header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .support-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        animation: float 3s ease-in-out infinite;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+    
+    .support-form-card {
+        border: none;
+        border-radius: 25px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+        overflow: hidden;
+        background: white;
+        position: relative;
+    }
+    
+    .support-form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #10b981, #667eea);
+        background-size: 200% 100%;
+        animation: gradientShift 3s linear infinite;
+    }
+    
+    @keyframes gradientShift {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 200% 0%; }
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8fafc;
+        border-radius: 15px;
+        border-left: 4px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    
+    .form-section:hover {
+        border-left-color: #667eea;
+        background: #f1f5f9;
+        transform: translateX(2px);
+    }
+    
+    .form-section h6 {
+        color: #475569;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .section-icon {
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 12px;
+        margin-right: 0.75rem;
+    }
+    
+    .form-control-modern {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-control-modern:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        outline: none;
+        background: #fefefe;
+    }
+    
+    .form-label-modern {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .required-asterisk {
+        color: #ef4444;
+        margin-left: 0.25rem;
+        font-weight: bold;
+    }
+    
+    .priority-option {
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        margin-bottom: 0.5rem;
+        border: 2px solid #e2e8f0;
+        background: white;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .priority-option:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+    
+    .priority-option.active {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #f0f4ff, #e0e7ff);
+    }
+    
+    .priority-low { border-left: 4px solid #10b981; }
+    .priority-medium { border-left: 4px solid #f59e0b; }
+    .priority-high { border-left: 4px solid #ef4444; }
+    .priority-critical { border-left: 4px solid #dc2626; }
+    
+    .checkbox-modern {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .checkbox-modern:hover {
+        border-color: #cbd5e1;
+        background: #f8fafc;
+    }
+    
+    .checkbox-modern input[type="checkbox"] {
+        margin-right: 1rem;
+        transform: scale(1.2);
+        accent-color: #667eea;
+    }
+    
+    .submit-button {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        border-radius: 25px;
+        padding: 1rem 3rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .submit-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .submit-button:hover::before {
+        left: 100%;
+    }
+    
+    .submit-button:hover {
+        background: linear-gradient(135deg, #7c6aed, #8b5cf6);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .submit-button:active {
+        transform: translateY(0);
+    }
+    
+    .help-text {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-radius: 12px;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-left: 4px solid #3b82f6;
+    }
+    
+    .slide-in {
+        animation: slideInUp 0.6s ease-out;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Support Header -->
+        <div class="support-header slide-in">
+            <div class="support-header-content">
+                <div class="support-icon">
+                    <i class="fas fa-headset fa-2x"></i>
+                </div>
+                <h1 class="display-6 fw-bold mb-3">Expert Support</h1>
+                <p class="lead mb-0 opacity-75">Our technical specialists are ready to help resolve your system issues</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Support Form -->
+        <div class="card support-form-card slide-in" style="animation-delay: 0.2s;">
+            <div class="card-body p-4">
+                <!-- DEBUG INFO (Remove in production) -->
+                {% if config.DEBUG %}
+                <div class="alert alert-info">
+                    <strong>Debug Info:</strong><br>
+                    User: {{ current_user.username }}<br>
+                    Conversation ID: {{ conversation_id }}<br>
+                    Form CSRF Token: {{ form.csrf_token.current_token if form.csrf_token else 'None' }}
+                </div>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('submit_support') }}" id="supportForm" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Hidden conversation ID -->
+                    {% if conversation_id %}
+                    <input type="hidden" name="conversation_id" value="{{ conversation_id }}">
+                    {% endif %}
+                    
+                    <!-- Issue Information Section -->
+                    <div class="form-section">
+                        <h6>
+                            <div class="section-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            Issue Information
+                        </h6>
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label form-label-modern") }}
+                            <span class="required-asterisk">*</span>
+                            {{ form.title(class="form-control form-control-modern", placeholder="Brief description of your problem") }}
+                            {% if form.title.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.title.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label form-label-modern") }}
+                            <span class="required-asterisk">*</span>
+                            {{ form.description(class="form-control form-control-modern", rows="6", placeholder="Please provide detailed information about the problem you're experiencing. Include error messages, when the issue occurs, and what you were doing when it happened.") }}
+                            {% if form.description.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.description.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.error_code.label(class="form-label form-label-modern") }}
+                                {{ form.error_code(class="form-control form-control-modern", placeholder="e.g., 0x0000001E, BSOD code") }}
+                                {% if form.error_code.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.error_code.errors %}
+                                            <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                {{ form.priority.label(class="form-label form-label-modern") }}
+                                <span class="required-asterisk">*</span>
+                                {{ form.priority(class="form-control form-control-modern") }}
+                                {% if form.priority.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.priority.errors %}
+                                            <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if form.steps_tried %}
+                        <div class="mb-3">
+                            {{ form.steps_tried.label(class="form-label form-label-modern") }}
+                            {{ form.steps_tried(class="form-control form-control-modern", rows="3", placeholder="What troubleshooting steps have you already attempted?") }}
+                            {% if form.steps_tried.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.steps_tried.errors %}
+                                        <small><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Additional Options Section -->
+                    {% if form.attach_conversation or form.email_updates %}
+                    <div class="form-section">
+                        <h6>
+                            <div class="section-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            Additional Options
+                        </h6>
+                        
+                        {% if form.attach_conversation %}
+                        <label class="checkbox-modern" for="{{ form.attach_conversation.id }}">
+                            {{ form.attach_conversation() }}
+                            <div class="checkbox-label">
+                                <div class="fw-bold">Include AI conversation history</div>
+                                <small class="text-muted">Recommended - helps our team understand your issue better</small>
+                            </div>
+                        </label>
+                        {% endif %}
+                        
+                        {% if form.email_updates %}
+                        <label class="checkbox-modern" for="{{ form.email_updates.id }}">
+                            {{ form.email_updates() }}
+                            <div class="checkbox-label">
+                                <div class="fw-bold">Send me email updates</div>
+                                <small class="text-muted">Get notified when our team responds to your ticket</small>
+                            </div>
+                        </label>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="submit-button" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Submit Support Request
+                        </button>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-shield-alt me-1"></i>
+                                Your information is secure and will only be used to help resolve your issue
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation enhancement
+    const form = document.getElementById('supportForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Real-time validation
+    const requiredFields = ['title', 'description', 'priority'];
+    requiredFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('input', validateForm);
+            field.addEventListener('blur', function() {
+                validateField(this);
+            });
+        }
+    });
+    
+    function validateField(field) {
+        const isValid = field.value.trim() !== '';
+        if (field.hasAttribute('required') || requiredFields.includes(field.id)) {
+            field.style.borderColor = isValid ? '#10b981' : '#ef4444';
+            return isValid;
+        }
+        return true;
+    }
+    
+    function validateForm() {
+        const allValid = requiredFields.every(fieldId => {
+            const field = document.getElementById(fieldId);
+            return field ? validateField(field) : true;
+        });
+        
+        submitBtn.style.opacity = allValid ? '1' : '0.7';
+        return allValid;
+    }
+    
+    // Enhanced form submission with debugging
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        console.log('Form submission started');
+        
+        // Validate required fields
+        const title = document.getElementById('title').value.trim();
+        const description = document.getElementById('description').value.trim();
+        const priority = document.getElementById('priority').value;
+        
+        console.log('Form data:', { title, description, priority });
+        
+        if (!title || !description || !priority) {
+            console.log('Validation failed: missing required fields');
+            showAlert('error', 'Please fill in all required fields.');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+        submitBtn.disabled = true;
+        
+        // Log form data for debugging
+        const formData = new FormData(form);
+        console.log('Submitting form data:');
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+        
+        // Submit the form
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (response.redirected) {
+                console.log('Redirected to:', response.url);
+                window.location.href = response.url;
+            } else {
+                return response.text();
+            }
+        })
+        .then(html => {
+            if (html) {
+                console.log('Response HTML received');
+                // If we get HTML back, there was likely a validation error
+                // Parse and show errors
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const alerts = doc.querySelectorAll('.alert');
+                
+                if (alerts.length > 0) {
+                    alerts.forEach(alert => {
+                        const alertType = alert.classList.contains('alert-danger') ? 'error' : 'info';
+                        showAlert(alertType, alert.textContent.trim());
+                    });
+                } else {
+                    showAlert('error', 'An error occurred. Please try again.');
+                }
+                
+                // Reset button
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Support Request';
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showAlert('error', 'Network error. Please check your connection and try again.');
+            
+            // Reset button
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Submit Support Request';
+            submitBtn.disabled = false;
+        });
+    });
+    
+    // Auto-expand textareas
+    const textareas = document.querySelectorAll('textarea');
+    textareas.forEach(textarea => {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.max(this.scrollHeight, 100) + 'px';
+        });
+    });
+    
+    // Character count for description
+    const description = document.getElementById('description');
+    if (description) {
+        const charCountDiv = document.createElement('div');
+        charCountDiv.className = 'text-muted small mt-1';
+        charCountDiv.style.textAlign = 'right';
+        description.parentNode.appendChild(charCountDiv);
+        
+        description.addEventListener('input', function() {
+            const count = this.value.length;
+            charCountDiv.textContent = `${count}/2000 characters`;
+            charCountDiv.style.color = count > 1800 ? '#f59e0b' : count > 2000 ? '#ef4444' : '#6b7280';
+        });
+    }
+    
+    // Initial validation
+    validateForm();
+});
+
+function showAlert(type, message) {
+    const alertType = type === 'error' ? 'danger' : type;
+    const icon = type === 'error' ? 'exclamation-triangle' : 'check-circle';
+    
+    const alertHtml = `
+        <div class="alert alert-${alertType} alert-dismissible fade show" role="alert" 
+             style="position: fixed; top: 20px; right: 20px; z-index: 9999; border-radius: 10px; max-width: 400px;">
+            <i class="fas fa-${icon} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', alertHtml);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        const alert = document.querySelector('.alert');
+        if (alert) {
+            alert.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

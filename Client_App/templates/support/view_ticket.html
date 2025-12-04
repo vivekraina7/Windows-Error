@@ -1,0 +1,212 @@
+<!-- templates/support/view_ticket.html - Client Side Ticket View -->
+{% extends "base.html" %}
+
+{% block title %}Ticket {{ ticket.ticket_id }} - Support Ticket{% endblock %}
+
+{% block content %}
+<style>
+    .ticket-header {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        border-left: 4px solid;
+    }
+    
+    .ticket-open { border-left-color: #f59e0b; }
+    .ticket-in-progress { border-left-color: #8b5cf6; }
+    .ticket-pending-user { border-left-color: #06b6d4; }
+    .ticket-resolved { border-left-color: #10b981; }
+    .ticket-closed { border-left-color: #6b7280; }
+    
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+    
+    .status-open { background: #fef3c7; color: #92400e; }
+    .status-in-progress { background: #e0e7ff; color: #5b21b6; }
+    .status-pending-user { background: #cffafe; color: #0e7490; }
+    .status-resolved { background: #d1fae5; color: #065f46; }
+    .status-closed { background: #f3f4f6; color: #374151; }
+    
+    .priority-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .priority-low { background: #d1fae5; color: #065f46; }
+    .priority-medium { background: #fef3c7; color: #92400e; }
+    .priority-high { background: #fee2e2; color: #991b1b; }
+    .priority-critical { background: #fecaca; color: #7f1d1d; }
+</style>
+
+<div class="container mt-4">
+    <!-- Ticket Header -->
+    <div class="ticket-header ticket-{{ ticket.status.replace('_', '-') }}">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="mb-2">{{ ticket.title }}</h1>
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="text-muted">
+                        <i class="fas fa-ticket-alt me-1"></i>
+                        #{{ ticket.ticket_id }}
+                    </span>
+                    <span class="status-badge status-{{ ticket.status.replace('_', '-') }}">
+                        {{ ticket.status.replace('_', ' ').title() }}
+                    </span>
+                    <span class="priority-badge priority-{{ ticket.priority }}">
+                        {{ ticket.priority.title() }} Priority
+                    </span>
+                </div>
+                <div class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    Created: {{ ticket.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    {% if ticket.updated_at != ticket.created_at %}
+                    • Updated: {{ ticket.updated_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="action-buttons">
+                    {% if ticket.assigned_to %}
+                        <span class="badge bg-info fs-6">
+                            <i class="fas fa-user me-1"></i>
+                            Assigned to Support
+                        </span>
+                    {% else %}
+                        <span class="badge bg-warning fs-6">
+                            <i class="fas fa-clock me-1"></i>
+                            Awaiting Assignment
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Ticket Content -->
+        <div class="col-lg-8">
+            <div class="info-card">
+                <h5><i class="fas fa-align-left me-2"></i>Description</h5>
+                <div class="mt-3">
+                    <p>{{ ticket.description | replace('\n', '<br>') | safe }}</p>
+                </div>
+                
+                {% if ticket.error_code %}
+                <div class="mt-4">
+                    <h6><i class="fas fa-code me-2"></i>Error Code</h6>
+                    <code class="fs-5">{{ ticket.error_code }}</code>
+                </div>
+                {% endif %}
+                
+                {% if ticket.solution %}
+                <div class="mt-4 p-3 bg-light rounded">
+                    <h6><i class="fas fa-lightbulb me-2 text-success"></i>Solution Provided</h6>
+                    <div class="mt-2">
+                        {{ ticket.solution | replace('\n', '<br>') | safe }}
+                    </div>
+                    {% if ticket.resolved_at %}
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-check-circle text-success me-1"></i>
+                        Resolved on {{ ticket.resolved_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </small>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Add Message Form (if ticket is still active) -->
+            {% if ticket.status not in ['resolved', 'closed'] %}
+            <div class="info-card">
+                <h5><i class="fas fa-plus-circle me-2"></i>Add Message</h5>
+                <form method="POST" action="{{ url_for('add_ticket_message', ticket_id=ticket.ticket_id) }}">
+                    {{ form.hidden_tag() if form }}
+                    <div class="mt-3">
+                        <textarea name="message" class="form-control" rows="4" placeholder="Add additional information or ask a question..." required></textarea>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Status Information -->
+            <div class="info-card">
+                <h6><i class="fas fa-info-circle me-2"></i>Ticket Status</h6>
+                <div class="mt-3">
+                    <div><strong>Current Status:</strong> {{ ticket.get_status_display() }}</div>
+                    <div><strong>Priority:</strong> {{ ticket.get_priority_display() }}</div>
+                    <div><strong>Created:</strong> {{ ticket.created_at.strftime('%m/%d/%Y %I:%M %p') }}</div>
+                    {% if ticket.assigned_at %}
+                    <div><strong>Assigned:</strong> {{ ticket.assigned_at.strftime('%m/%d/%Y %I:%M %p') }}</div>
+                    {% endif %}
+                    {% if ticket.resolved_at %}
+                    <div><strong>Resolved:</strong> {{ ticket.resolved_at.strftime('%m/%d/%Y %I:%M %p') }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Support Information -->
+            <div class="info-card">
+                <h6><i class="fas fa-headset me-2"></i>Support Information</h6>
+                <div class="mt-3">
+                    {% if ticket.assigned_to %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Your ticket has been assigned to our support team and is being processed.
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock me-2"></i>
+                        Your ticket is in queue and will be assigned to a support agent shortly.
+                    </div>
+                    {% endif %}
+                    
+                    <small class="text-muted">
+                        <strong>Need immediate help?</strong><br>
+                        Try our <a href="{{ url_for('chatbot') }}">AI Assistant</a> for instant support.
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="info-card">
+                <h6><i class="fas fa-cog me-2"></i>Actions</h6>
+                <div class="mt-3">
+                    <a href="{{ url_for('my_tickets') }}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                        <i class="fas fa-list me-1"></i>
+                        View All My Tickets
+                    </a>
+                    <a href="{{ url_for('support') }}" class="btn btn-outline-secondary btn-sm w-100">
+                        <i class="fas fa-plus me-1"></i>
+                        Create New Ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

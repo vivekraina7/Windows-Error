@@ -1,0 +1,868 @@
+<!-- templates/chatbot.html - Enhanced AI Chatbot Interface -->
+{% extends "base.html" %}
+
+{% block title %}AI Assistant - Windows Dump Analyzer{% endblock %}
+
+{% block content %}
+<style>
+    .chatbot-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        color: white;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .chatbot-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.1;
+    }
+    
+    .chatbot-header-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .chat-container {
+        border: none;
+        border-radius: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        background: white;
+    }
+    
+    .chat-header {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        border: none;
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .chat-header::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    }
+    
+    .ai-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        50% { box-shadow: 0 4px 25px rgba(16, 185, 129, 0.5); }
+        100% { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+    }
+    
+    .chat-messages {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        height: 500px;
+        overflow-y: auto;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .chat-messages::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: 
+            radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    .message-bubble {
+        animation: messageSlideIn 0.3s ease-out;
+        margin-bottom: 1.5rem;
+    }
+    
+    @keyframes messageSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .ai-message .message-content {
+        background: white;
+        border-radius: 20px 20px 20px 5px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        padding: 1.25rem;
+        position: relative;
+        border: 1px solid rgba(16, 185, 129, 0.1);
+    }
+    
+    .ai-message .message-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 3px;
+    }
+    
+    .user-message {
+        text-align: right;
+    }
+    
+    .user-message .message-content {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border-radius: 20px 20px 5px 20px;
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
+        padding: 1.25rem;
+        display: inline-block;
+        max-width: 80%;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        box-shadow: 0 3px 12px rgba(79, 70, 229, 0.3);
+    }
+    
+    .ai-message-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        box-shadow: 0 3px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .chat-input {
+        background: white;
+        border-top: 1px solid #e2e8f0;
+        padding: 1.5rem;
+        position: relative;
+    }
+    
+    .chat-input::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.3), transparent);
+    }
+    
+    .input-group-modern {
+        background: #f8fafc;
+        border-radius: 25px;
+        padding: 0.5rem;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+    
+    .input-group-modern:focus-within {
+        border-color: #4f46e5;
+        box-shadow: inset 0 2px 10px rgba(0,0,0,0.05), 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .input-group-modern input {
+        background: transparent;
+        border: none;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        outline: none;
+        flex: 1;
+    }
+    
+    .send-button {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 20px;
+        padding: 0.75rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    }
+    
+    .send-button:hover {
+        background: linear-gradient(135deg, #5b52e6, #8b5cf6);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    }
+    
+    .send-button:active {
+        transform: translateY(0);
+    }
+    
+    .quick-actions {
+        margin-top: 1rem;
+    }
+    
+    .quick-action-btn {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        color: #64748b;
+        transition: all 0.2s ease;
+        margin: 0.25rem;
+    }
+    
+    .quick-action-btn:hover {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border-color: #4f46e5;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    }
+    
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        border-radius: 15px;
+        margin-top: 1rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .typing-dots {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: typingBounce 1.4s infinite ease-in-out both;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes typingBounce {
+        0%, 80%, 100% { 
+            transform: scale(0);
+        } 40% { 
+            transform: scale(1);
+        }
+    }
+    
+    .back-button {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 0.75rem 1.5rem;
+        color: #64748b;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .back-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .error-code-badge {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: 'Courier New', monospace;
+    }
+    
+    .escalation-modal {
+        z-index: 9999 !important;
+    }
+    
+    .escalation-modal .modal-backdrop {
+        z-index: 9998 !important;
+    }
+    
+    .escalation-modal .modal-content {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 10000 !important;
+    }
+    
+    .escalation-modal .modal-header {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border-radius: 20px 20px 0 0;
+        border: none;
+    }
+    
+    .escalation-modal .btn-primary {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        border: none;
+        border-radius: 15px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        position: relative;
+        z-index: 10001 !important;
+    }
+    
+    .escalation-modal .btn-secondary {
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        color: #64748b;
+        position: relative;
+        z-index: 10001 !important;
+    }
+    
+    /* Scrollbar Styling */
+    .chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+        border-radius: 3px;
+    }
+    
+    .chat-messages::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #94a3b8, #64748b);
+    }
+    
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .chatbot-header {
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .chat-container {
+            border-radius: 15px;
+        }
+        
+        .chat-messages {
+            height: 400px;
+            padding: 1rem;
+        }
+        
+        .user-message .message-content {
+            max-width: 85%;
+        }
+        
+        .quick-action-btn {
+            display: block;
+            width: 100%;
+            margin: 0.25rem 0;
+        }
+        
+        .chatbot-header .d-flex {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+</style>
+
+<!-- Chatbot Header -->
+<div class="chatbot-header">
+    <div class="chatbot-header-content">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="ai-avatar me-3">
+                    <i class="fas fa-robot fa-lg"></i>
+                </div>
+                <div>
+                    <h1 class="h3 fw-bold mb-1">AI Technical Assistant</h1>
+                    <p class="mb-0 opacity-75">Get instant help with your system issues</p>
+                </div>
+            </div>
+            <a href="{{ url_for('index') }}" class="back-button">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Chat Interface -->
+        <div class="card chat-container">
+            <div class="chat-header">
+                <div class="d-flex align-items-center">
+                    <div class="ai-message-avatar me-3">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1 fw-bold">Technical Support Assistant</h5>
+                        {% if error_code %}
+                        <div>
+                            <span class="text-white-50">Analyzing error:</span>
+                            <span class="error-code-badge ms-2">{{ error_code }}</span>
+                        </div>
+                        {% else %}
+                        <p class="mb-0 text-white-50">Ready to help with your technical issues</p>
+                        {% endif %}
+                    </div>
+                    <div class="text-end">
+                        <div class="d-flex align-items-center text-white-50">
+                            <div class="status-indicator me-2" style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite;"></div>
+                            <small>Online</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <!-- Initial AI Message -->
+                <div class="message-bubble ai-message">
+                    <div class="d-flex align-items-start">
+                        <div class="ai-message-avatar me-3">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="message-content">
+                                <div class="d-flex align-items-center mb-2">
+                                    <strong class="text-success">AI Assistant</strong>
+                                    <span class="badge bg-success ms-2" style="font-size: 0.7rem;">Online</span>
+                                </div>
+                                <p class="mb-0">
+                                    Hello! I'm your AI technical assistant, specialized in Windows system issues. 
+                                    I'm here to help you with dump file analysis and troubleshooting.
+                                    {% if error_code %}
+                                    I can see you're dealing with error <code>{{ error_code }}</code>. 
+                                    Are you having trouble with the solution steps, or did the suggested solution not resolve your issue?
+                                    {% else %}
+                                    How can I assist you today?
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mt-2">
+                                <small class="text-muted">Just now</small>
+                                <div class="message-actions">
+                                    <button class="btn btn-sm btn-outline-success rounded-pill" onclick="sendQuickMessage('Thank you!')">
+                                        <i class="fas fa-thumbs-up me-1"></i>
+                                        Helpful
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Input -->
+            <div class="chat-input">
+                <form id="chatForm">
+                    <div class="input-group-modern">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Type your message here..." autocomplete="off">
+                        <button type="submit" id="sendButton" class="send-button">
+                            <i class="fas fa-paper-plane me-1"></i>
+                            Send
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="d-flex align-items-center mb-2">
+                        <small class="text-muted me-2">Quick responses:</small>
+                        <div class="status-indicator" style="width: 4px; height: 4px; background: #10b981; border-radius: 50%;"></div>
+                    </div>
+                    <div class="d-flex flex-wrap">
+                        <button type="button" class="quick-action-btn" onclick="sendQuickMessage('I need help with the solution steps')">
+                            <i class="fas fa-question-circle me-1"></i>
+                            Help with steps
+                        </button>
+                        <button type="button" class="quick-action-btn" onclick="sendQuickMessage('The suggested solution did not work for me')">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            Solution didn't work
+                        </button>
+                        <button type="button" class="quick-action-btn" onclick="sendQuickMessage('I want to contact human support')">
+                            <i class="fas fa-headset me-1"></i>
+                            Contact human support
+                        </button>
+                        <button type="button" class="quick-action-btn" onclick="sendQuickMessage('Can you explain this error in simple terms?')">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            Explain error
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="typing-indicator" style="display: none;">
+            <div class="ai-message-avatar me-2" style="width: 30px; height: 30px;">
+                <i class="fas fa-robot" style="font-size: 12px;"></i>
+            </div>
+            <div class="typing-dots me-2">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+            <small class="text-muted">AI assistant is thinking...</small>
+        </div>
+        
+        <!-- Help Tips -->
+        <div class="mt-3 p-3 bg-light rounded-3" style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important; border-radius: 15px !important;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle text-primary me-2"></i>
+                <small class="text-muted">
+                    <strong>Pro tip:</strong> Be specific about your issue for better assistance. You can also use the quick response buttons for common questions.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Support Escalation Modal -->
+<div class="modal fade escalation-modal" id="escalationModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-headset fa-lg me-3"></i>
+                    <div>
+                        <h5 class="modal-title mb-0">Connect with Human Support</h5>
+                        <small class="text-white-50">Escalate to our expert support team</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="text-center mb-3">
+                    <div class="mb-3">
+                        <i class="fas fa-user-tie fa-3x text-primary"></i>
+                    </div>
+                    <h6 class="fw-bold">Need Human Expertise?</h6>
+                </div>
+                <p class="text-muted">
+                    Our AI assistant has determined that your issue may require human expertise. 
+                    Creating a support ticket will connect you with our technical specialists.
+                </p>
+                <div class="alert alert-info" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: none; border-radius: 10px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Your entire conversation history will be included</strong> to help our support team understand your issue better and provide faster assistance.
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Continue with AI
+                </button>
+                <button type="button" class="btn btn-primary" onclick="escalateToSupport()">
+                    <i class="fas fa-ticket-alt me-1"></i>
+                    Create Support Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+<script>
+// Initialize chatbot with enhanced features
+const chatbot = new Chatbot({
+    conversationId: '{{ conversation_id }}',
+    errorCode: '{{ error_code }}',
+    chatEndpoint: '/chat',
+    supportEndpoint: '/support'
+});
+
+function sendQuickMessage(message) {
+    // Add visual feedback for quick message
+    if (event && event.target) {
+        event.target.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            event.target.style.transform = 'scale(1)';
+        }, 100);
+    }
+    
+    // Check if message is about contacting support
+    if (message.toLowerCase().includes('contact') && message.toLowerCase().includes('support')) {
+        // Show the escalation modal instead of sending the message
+        showEscalationModal();
+        return;
+    }
+    
+    chatbot.sendMessage(message);
+}
+
+function escalateToSupport() {
+    // Hide the modal first
+    const modalElement = document.getElementById('escalationModal');
+    const modal = bootstrap.Modal.getInstance(modalElement);
+    if (modal) {
+        modal.hide();
+    }
+    
+    // Navigate to support page
+    const supportUrl = `/support?conversation_id={{ conversation_id }}`;
+    window.location.href = supportUrl;
+}
+
+// Override the original chatbot's message handling to check for support requests
+if (chatbot && chatbot.sendMessage) {
+    const originalSendMessage = chatbot.sendMessage;
+    chatbot.sendMessage = function(message) {
+        // Check if the message indicates user wants to contact support
+        const supportKeywords = ['contact support', 'human support', 'talk to human', 'escalate', 'support team'];
+        const messageText = message.toLowerCase();
+        
+        if (supportKeywords.some(keyword => messageText.includes(keyword))) {
+            // Show escalation modal
+            showEscalationModal();
+            return;
+        }
+        
+        // Call original method for other messages
+        originalSendMessage.call(this, message);
+    };
+}
+
+// Also listen for responses from the chatbot that might trigger escalation
+if (chatbot && chatbot.on) {
+    chatbot.on('message_received', function(response) {
+        // Check if AI response suggests escalation
+        if (response && response.message) {
+            const responseText = response.message.toLowerCase();
+            const escalationTriggers = [
+                'escalate to support',
+                'contact human support',
+                'create support ticket',
+                'connect with our support team'
+            ];
+            
+            if (escalationTriggers.some(trigger => responseText.includes(trigger))) {
+                setTimeout(() => {
+                    showEscalationModal();
+                }, 1000); // Small delay to let user read the AI response
+            }
+        }
+    });
+}
+
+// Enhanced modal show function
+function showEscalationModal() {
+    // Ensure any existing modals are closed first
+    const existingModals = document.querySelectorAll('.modal.show');
+    existingModals.forEach(modal => {
+        const instance = bootstrap.Modal.getInstance(modal);
+        if (instance) {
+            instance.hide();
+        }
+    });
+    
+    // Small delay to ensure previous modals are closed
+    setTimeout(() => {
+        const modalElement = document.getElementById('escalationModal');
+        if (modalElement) {
+            // Remove any existing instances
+            const existingInstance = bootstrap.Modal.getInstance(modalElement);
+            if (existingInstance) {
+                existingInstance.dispose();
+            }
+            
+            // Create new modal instance with proper options
+            const modal = new bootstrap.Modal(modalElement, {
+                backdrop: true,
+                keyboard: true,
+                focus: true
+            });
+            
+            // Show the modal
+            modal.show();
+            
+            // Ensure buttons are clickable after modal is shown
+            modalElement.addEventListener('shown.bs.modal', function() {
+                // Force focus on modal to ensure it's interactive
+                modalElement.focus();
+                
+                // Ensure all buttons are clickable
+                const buttons = modalElement.querySelectorAll('button');
+                buttons.forEach(button => {
+                    button.style.pointerEvents = 'auto';
+                    button.style.zIndex = '10001';
+                });
+            }, { once: true });
+        }
+    }, 100);
+}
+
+// Fallback: Listen for any programmatic trigger to show escalation modal
+window.showEscalationModal = showEscalationModal;
+
+// Enhanced message handling
+document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const chatForm = document.getElementById('chatForm');
+    
+    // Auto-focus input
+    messageInput.focus();
+    
+    // Enhanced input handling
+    messageInput.addEventListener('input', function() {
+        if (this.value.trim()) {
+            sendButton.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            sendButton.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Send';
+        } else {
+            sendButton.style.background = 'linear-gradient(135deg, #4f46e5, #7c3aed)';
+            sendButton.innerHTML = '<i class="fas fa-paper-plane me-1"></i>Send';
+        }
+    });
+    
+    // Typing indicator simulation
+    let typingTimeout;
+    messageInput.addEventListener('input', function() {
+        if (this.value.length > 0) {
+            clearTimeout(typingTimeout);
+            // Show user is typing after 500ms of typing
+            typingTimeout = setTimeout(() => {
+                // Could add "User is typing..." indicator here
+            }, 500);
+        }
+    });
+    
+    // Enhanced form submission
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message) {
+            // Add send button animation
+            sendButton.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                sendButton.style.transform = 'scale(1)';
+            }, 100);
+            
+            sendQuickMessage(message);
+            messageInput.value = '';
+            messageInput.focus();
+        }
+    });
+    
+    // Auto-scroll chat messages
+    const chatMessages = document.getElementById('chatMessages');
+    const observer = new MutationObserver(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+    observer.observe(chatMessages, { childList: true, subtree: true });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Escape to clear input
+        if (e.key === 'Escape') {
+            messageInput.value = '';
+            messageInput.blur();
+        }
+        // Ctrl+/ to focus input
+        if (e.ctrlKey && e.key === '/') {
+            e.preventDefault();
+            messageInput.focus();
+        }
+    });
+    
+    // Quick action animations
+    document.querySelectorAll('.quick-action-btn').forEach(btn => {
+        btn.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        btn.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // Add message sent confirmation
+    window.addEventListener('messageSent', function(e) {
+        // Add visual feedback that message was sent
+        const confirmation = document.createElement('div');
+        confirmation.className = 'alert alert-success';
+        confirmation.style.position = 'fixed';
+        confirmation.style.top = '20px';
+        confirmation.style.right = '20px';
+        confirmation.style.zIndex = '9999';
+        confirmation.style.borderRadius = '10px';
+        confirmation.innerHTML = '<i class="fas fa-check me-1"></i>Message sent!';
+        
+        document.body.appendChild(confirmation);
+        setTimeout(() => {
+            confirmation.style.opacity = '0';
+            setTimeout(() => {
+                document.body.removeChild(confirmation);
+            }, 300);
+        }, 2000);
+    });
+});
+
+// Add some helpful utilities
+function showTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'flex';
+}
+
+function hideTypingIndicator() {
+    document.getElementById('typingIndicator').style.display = 'none';
+}
+
+// Enhanced error handling
+window.addEventListener('error', function(e) {
+    console.error('Chatbot error:', e.error);
+    // Could show user-friendly error message here
+});
+</script>
+{% endblock %}

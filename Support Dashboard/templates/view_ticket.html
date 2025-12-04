@@ -1,0 +1,321 @@
+<!-- templates/view_ticket.html - View Individual Ticket -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket #{{ ticket.ticket_id }} - Support Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+        }
+        
+        .navbar-nav .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+        }
+        
+        .ticket-header {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .ticket-content {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-open { background: #fef3c7; color: #92400e; }
+        .status-in-progress { background: #e0e7ff; color: #5b21b6; }
+        .status-pending-user { background: #fde68a; color: #78350f; }
+        .status-resolved { background: #d1fae5; color: #065f46; }
+        .status-closed { background: #f3f4f6; color: #374151; }
+        
+        .priority-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .priority-low { background: #d1fae5; color: #065f46; }
+        .priority-medium { background: #fef3c7; color: #92400e; }
+        .priority-high { background: #fee2e2; color: #991b1b; }
+        .priority-critical { background: #fecaca; color: #7f1d1d; }
+        
+        .user-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-buttons .btn {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-headset me-2"></i>
+                Support Dashboard
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('dashboard') }}">
+                    <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('tickets') }}">
+                    <i class="fas fa-ticket-alt me-1"></i>All Tickets
+                </a>
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Ticket Header -->
+        <div class="ticket-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-2">{{ ticket.title }}</h1>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="text-muted">
+                            <i class="fas fa-ticket-alt me-1"></i>
+                            #{{ ticket.ticket_id }}
+                        </span>
+                        <span class="status-badge status-{{ ticket.status.replace('_', '-') }}">
+                            {{ ticket.status.replace('_', ' ').title() }}
+                        </span>
+                        <span class="priority-badge priority-{{ ticket.priority }}">
+                            {{ ticket.priority.title() }} Priority
+                        </span>
+                    </div>
+                    <div class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Created: {{ ticket.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        {% if ticket.updated_at != ticket.created_at %}
+                        • Updated: {{ ticket.updated_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="action-buttons">
+                        {% if not ticket.assigned_to %}
+                            <form method="post" action="{{ url_for('assign_ticket', ticket_id=ticket.ticket_id) }}" class="d-inline">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-user-plus me-1"></i>
+                                    Assign to Me
+                                </button>
+                            </form>
+                        {% elif ticket.assigned_to == current_user.id %}
+                            <span class="badge bg-success fs-6">
+                                <i class="fas fa-check me-1"></i>
+                                Assigned to You
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6">
+                                <i class="fas fa-user me-1"></i>
+                                Assigned to {{ ticket.assigned_staff.username if ticket.assigned_staff else 'Unknown' }}
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Ticket Content -->
+            <div class="col-lg-8">
+                <div class="ticket-content">
+                    <h5><i class="fas fa-align-left me-2"></i>Description</h5>
+                    <div class="mt-3">
+                        <p>{{ ticket.description | replace('\n', '<br>') | safe }}</p>
+                    </div>
+                    
+                    {% if ticket.error_code %}
+                    <div class="mt-4">
+                        <h6><i class="fas fa-code me-2"></i>Error Code</h6>
+                        <code class="fs-5">{{ ticket.error_code }}</code>
+                    </div>
+                    {% endif %}
+                    
+                    {% if ticket.solution %}
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6><i class="fas fa-lightbulb me-2 text-warning"></i>Solution</h6>
+                        <div class="mt-2">
+                            {{ ticket.solution | replace('\n', '<br>') | safe }}
+                        </div>
+                        {% if ticket.resolved_at %}
+                        <small class="text-muted mt-2 d-block">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            Resolved on {{ ticket.resolved_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Update Status Form -->
+                {% if ticket.assigned_to == current_user.id or current_user.role == 'manager' %}
+                <div class="ticket-content">
+                    <h5><i class="fas fa-edit me-2"></i>Update Ticket</h5>
+                    <form method="post" action="{{ url_for('update_ticket_status', ticket_id=ticket.ticket_id) }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select" required>
+                                    <option value="open" {{ 'selected' if ticket.status == 'open' else '' }}>Open</option>
+                                    <option value="in_progress" {{ 'selected' if ticket.status == 'in_progress' else '' }}>In Progress</option>
+                                    <option value="pending_user" {{ 'selected' if ticket.status == 'pending_user' else '' }}>Pending User Response</option>
+                                    <option value="resolved" {{ 'selected' if ticket.status == 'resolved' else '' }}>Resolved</option>
+                                    <option value="closed" {{ 'selected' if ticket.status == 'closed' else '' }}>Closed</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <label class="form-label">Solution (required for resolved status)</label>
+                            <textarea name="solution" class="form-control" rows="4" placeholder="Describe the solution or resolution...">{{ ticket.solution or '' }}</textarea>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i>
+                                Update Ticket
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- User Information -->
+                <div class="user-info">
+                    <h6><i class="fas fa-user me-2"></i>User Information</h6>
+                    <div class="mt-3">
+                        <div><strong>Name:</strong> {{ user.username if user else ticket.username }}</div>
+                        <div><strong>Email:</strong> {{ user.email if user else ticket.email }}</div>
+                        {% if user and user.system_config %}
+                        {% set config = user.get_system_config_dict() %}
+                        {% if config %}
+                        <hr>
+                        <div><strong>OS:</strong> {{ config.get('os_version', 'Not specified') }}</div>
+                        <div><strong>Processor:</strong> {{ config.get('processor', 'Not specified') }}</div>
+                        <div><strong>RAM:</strong> {{ config.get('ram_size', 'Not specified') }}</div>
+                        <div><strong>Storage:</strong> {{ config.get('storage_type', 'Not specified') }}</div>
+                        {% if config.get('graphics_card') and config.get('graphics_card') != 'Not specified' %}
+                        <div><strong>Graphics:</strong> {{ config.get('graphics_card') }}</div>
+                        {% endif %}
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Assignment Information -->
+                <div class="user-info">
+                    <h6><i class="fas fa-tasks me-2"></i>Assignment</h6>
+                    <div class="mt-3">
+                        {% if ticket.assigned_to %}
+                        <div><strong>Assigned to:</strong> {{ ticket.assigned_staff.username if ticket.assigned_staff else 'Unknown' }}</div>
+                        <div><strong>Assigned at:</strong> {{ ticket.assigned_at.strftime('%m/%d/%Y %I:%M %p') if ticket.assigned_at else 'Unknown' }}</div>
+                        {% else %}
+                        <div class="text-muted">Not assigned yet</div>
+                        {% endif %}
+                        
+                        {% if current_user.role == 'manager' and ticket.assigned_to != current_user.id %}
+                        <hr>
+                        <form method="post" action="{{ url_for('assign_ticket', ticket_id=ticket.ticket_id) }}">
+                            <label class="form-label">Reassign to:</label>
+                            <select name="agent_id" class="form-select form-select-sm">
+                                <option value="">Select Agent</option>
+                                <!-- You might want to populate this with available agents -->
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary mt-2">
+                                Reassign
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Conversation Link -->
+                {% if ticket.conversation_id %}
+                <div class="user-info">
+                    <h6><i class="fas fa-comments me-2"></i>Related</h6>
+                    <div class="mt-3">
+                        <div>
+                            <i class="fas fa-robot text-primary me-1"></i>
+                            <span>AI Conversation Available</span>
+                        </div>
+                        <small class="text-muted">ID: {{ ticket.conversation_id }}</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
