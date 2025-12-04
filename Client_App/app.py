@@ -35,7 +35,13 @@ app = Flask(__name__)
 
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-secret-key-change-this')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+database_url = os.getenv('DATABASE_URL', 'sqlite:///instance/dump_analyzer.db')
+
+# Fix postgres:// -> postgresql:// for SQLAlchemy compatibility
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['DEBUG'] = os.getenv('FLASK_ENV') == 'development'
 
@@ -1113,3 +1119,4 @@ if __name__ == '__main__':
         use_reloader=False
 
     )
+
