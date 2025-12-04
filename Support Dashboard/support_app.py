@@ -17,10 +17,15 @@ app = Flask(__name__)
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('SUPPORT_SECRET_KEY', 'support-secret-key')
 
-# Construct path to shared database
+# Construct path to shared database (for local fallback)
 shared_db_path = os.path.join(os.path.dirname(__file__), '..', 'Client_App', 'instance', 'dump_analyzer.db')
 shared_db_path = os.path.abspath(shared_db_path)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SUPPORT_DATABASE_URL', f'sqlite:///{shared_db_path}')
+
+# Normalize DATABASE_URL for Render Postgres + SQLite fallback
+database_url = os.getenv('SUPPORT_DATABASE_URL', f'sqlite:///{shared_db_path}')
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['CLIENT_API_URL'] = os.getenv('CLIENT_API_URL', 'http://localhost:5000/api')
@@ -30,6 +35,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
 
 # Support Staff Model
 class SupportStaff(db.Model):
@@ -445,3 +451,4 @@ if __name__ == '__main__':
     print("=" * 50)
     
     app.run(debug=True, host='127.0.0.1', port=8001)
+
