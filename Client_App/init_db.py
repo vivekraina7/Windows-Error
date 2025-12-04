@@ -26,7 +26,13 @@ def create_app():
     
     # Configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///dump_analyzer.db')
+    database_url = os.getenv('DATABASE_URL', 'sqlite:///dump_analyzer.db')
+
+    # Normalize old postgres scheme for SQLAlchemy
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Initialize database
@@ -233,4 +239,5 @@ if __name__ == '__main__':
     elif args.action == 'backup':
         backup_database()
     elif args.action == 'check':
+
         check_database()
