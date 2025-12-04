@@ -120,12 +120,18 @@ class TestingConfig(Config):
     MAIL_SUPPRESS_SEND = True
 
 class ProductionConfig(Config):
-    """Production configuration"""
+     """Production configuration"""
     DEBUG = False
     
     # Use PostgreSQL in production
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://username:password@localhost/dump_analyzer'
+    @property
+    def SQLALCHEMY_DATABASE_URI(self):
+        uri = os.environ.get('DATABASE_URL') or \
+            'postgresql://username:password@localhost/dump_analyzer'
+        # Normalize for Render Postgres
+        if uri.startswith("postgres://"):
+            uri = uri.replace("postgres://", "postgresql://", 1)
+        return uri
     
     # Enhanced security for production
     PREFERRED_URL_SCHEME = 'https'
@@ -175,3 +181,4 @@ def get_config():
     """Get configuration based on environment"""
 
     return config[os.getenv('FLASK_CONFIG', 'default')]
+
